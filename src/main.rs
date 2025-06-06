@@ -20,13 +20,18 @@ use clap::Command;
 
 mod command;
 mod matches;
+mod send;
+mod file;
+mod sections;
+mod parser;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let arg_matches = Command::new("mcqp")
         .about("")
         .version("0.1.0")
         .author("Mohaned Sherhan")
         .subcommands(command::main())
         .get_matches();
-    matches::main(arg_matches);
+    matches::main(arg_matches).await;
 }

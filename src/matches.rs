@@ -3,8 +3,9 @@
 
 use clap::ArgMatches;
 
-pub fn main(command: ArgMatches) {
-    match command.subcommand() {
+pub async fn main(commands: ArgMatches) {
+    match commands.subcommand() {
+        Some(("send", command)) => crate::send::main(command).await,
         _ => println!("Hello world")
     }
 }
