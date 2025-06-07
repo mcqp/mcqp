@@ -3,6 +3,8 @@
 
 use std::{fs::File, io::{BufReader, Lines}};
 
+use crate::log::Log;
+
 pub struct Poll {
     /// The poll question
     pub p: String,
@@ -30,6 +32,7 @@ impl Poll {
     }
 
     pub fn parse_choices(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
+        let logger = Log::new("poll-parser");
         loop {
             *line_number += 1;
             if let Some(line) = lines.next() {
@@ -41,7 +44,9 @@ impl Poll {
                         break;
                     }
                 } else {
-                    panic!("Can NOT read line number {}", line_number);
+                    logger.error (
+                        &format!("Can NOT read line number {}", line_number)
+                    );
                 }
             } else {
                 break;

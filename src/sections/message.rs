@@ -3,6 +3,8 @@
 
 use std::{fs::File, io::{BufReader, Lines}};
 
+use crate::log::Log;
+
 pub struct Message {
     pub m: String,
 }
@@ -13,6 +15,7 @@ impl Message {
     }
 
     pub fn parse_body(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
+        let logger = Log::new("message-parser");
         loop {
             *line_number += 1;
             if let Some(line) = lines.next(){
@@ -22,7 +25,9 @@ impl Message {
                     }
                     self.m += &format!("{}\n", line_content);
                 } else {
-                    panic!("Can NOT read line number {}", line_number);
+                    logger.error (
+                        &format!("Can NOT read line number {}", line_number)
+                    );
                 }
             } else {
                 break;

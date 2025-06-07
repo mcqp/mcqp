@@ -4,6 +4,8 @@
 
 use std::{fs::File, io::{BufReader, Lines}};
 
+use crate::log::Log;
+
 pub struct Config {
     /// The poll/question counter `(is_set: bool, start_from: usize)`
     pub counter: (bool, usize),
@@ -33,6 +35,7 @@ impl Config {
     /// - bot-token
     /// - chat-id
     pub fn parse_configs(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
+        let logger = Log::new("config-parser");
         loop {
             *line_number += 1;
             if let Some(line) = lines.next() {
@@ -48,7 +51,9 @@ impl Config {
                             if let Ok(counter) = num_str.parse::<usize>() {
                                 self.counter = (true, counter);
                             } else {
-                                panic!("Error at line {}, expect number found '{}'", line_number, num_str);
+                                logger.error (
+                                    &format!("Error at line {}, expect number found '{}'", line_number, num_str)
+                                );
                             }
                         }
 
@@ -60,7 +65,9 @@ impl Config {
                                 .unwrap_or("0:0")
                                 .trim();
                             if token.len() < 23 || !token.contains(":") {
-                                panic!("Error at line {}, expect a valid telegram token", line_number);
+                                logger.error (
+                                    &format!("Error at line {}, expect a valid telegram token", line_number)
+                                );
                             }
                             self.bot_token = token.to_string();
                         }
@@ -75,7 +82,9 @@ impl Config {
                             if id.len() > 5 {
                                 self.chat_id = id.to_string();
                             } else {
-                                panic!("Error at line {}, expect a valid chat-id", line_number);
+                                logger.error (
+                                    &format!("Error at line {}, expect a valid chat-id", line_number)
+                                );
                             }
                         }
                     }
@@ -83,7 +92,9 @@ impl Config {
                         break;
                     }
                 } else {
-                    panic!("Can NOT read line number {}", line_number);
+                    logger.error (
+                        &format!("Can NOT read line number {}", line_number)
+                    );
                 }
             } else {
                 break;
