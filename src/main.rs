@@ -24,6 +24,7 @@ mod send;
 mod file;
 mod sections;
 mod parser;
+mod log;
 
 #[tokio::main]
 async fn main() {

@@ -9,6 +9,7 @@ use crate::sections::{
     message::Message,
     question::Question
 };
+use crate::log::Log;
 
 #[derive(PartialEq, Debug)]
 pub enum McqpType {
@@ -56,6 +57,7 @@ impl McqpList {
         let reader = BufReader::new(file);
         let mut lines: std::io::Lines<BufReader<File>> = reader.lines();
         let mut line_number: usize = 0;
+        let logger = Log::new("parser");
         loop {
             line_number += 1;
             if let Some( line ) = lines.next() {
@@ -130,15 +132,29 @@ impl McqpList {
                     // Parse the comments
                     else if line_content.trim().starts_with("//") { continue; }
 
-                    else { panic!("Error in line {}", line_number); }
+                    else { 
+                        logger.error(
+                            &format!("Error in line {}", line_number)
+                        );
+                    }
 
                 } else {
-                    panic!("Can NOT read line number {}", line_number);
+                    logger.error(
+                        &format!("Can NOT read line number {}", line_number)
+                    );
                 }
             } else {
                 break;
             }
         }
+        logger.info(
+            &format!(
+                "found {}/poll and {}/question and {}/message", 
+                self.poll_count,
+                self.question_count,
+                self.message_count
+            )
+        );
     }
 }
 

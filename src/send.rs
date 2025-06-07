@@ -7,6 +7,7 @@ use serde::Serialize;
 
 use crate::file;
 use crate::parser;
+use crate::log::Log;
 
 #[derive(Serialize)]
 struct MessageDto {
@@ -31,6 +32,7 @@ async fn send(abstraction_tree: parser::McqpList) {
     let mut _poll_api_url: String = String::new();
     let mut _message_api_url: String = String::new();
     let mut _chat_id: String = String::new();
+    let logger = Log::new("sender");
     if abstraction_tree.config.is_none() {
         todo!("Get the config from the data dir!");
     } else {
@@ -53,11 +55,11 @@ async fn send(abstraction_tree: parser::McqpList) {
                     .await;
                 if let Ok(res) = res_ruslt {
                     if !res.status().is_success() {
-                        println!("{:#?}", res);
-                        panic!("Can NOT send the message!");
+                        logger.error("Can NOT send the message!");
                     }
+                    logger.info("message sended successfully");
                 } else {
-                    panic!("Can NOT make a post request!");
+                    logger.error("Can NOT make a post request!");
                 }
             }
             parser::McqpType::Poll => {
@@ -77,10 +79,11 @@ async fn send(abstraction_tree: parser::McqpList) {
                     .await;
                 if let Ok(res) = res_ruslt {
                     if !res.status().is_success() {
-                        panic!("Can NOT send the poll!");
+                        logger.error("Can NOT send the poll!");
                     }
+                    logger.info("poll sended successfully");
                 } else {
-                    panic!("Can NOT make a post request!");
+                    logger.error("Can NOT make a post request!");
                 }
             }
             parser::McqpType::MCPoll => {
@@ -100,10 +103,11 @@ async fn send(abstraction_tree: parser::McqpList) {
                     .await;
                 if let Ok(res) = res_ruslt {
                     if !res.status().is_success() {
-                        panic!("Can NOT send the poll!");
+                        logger.error("Can NOT send the poll!");
                     }
+                    logger.info("mc poll sended successfully");
                 } else {
-                    panic!("Can NOT make a post request!");
+                    logger.error("Can NOT make a post request!");
                 }
             }
             parser::McqpType::Question => {
@@ -123,10 +127,11 @@ async fn send(abstraction_tree: parser::McqpList) {
                     .await;
                 if let Ok(res) = res_ruslt {
                     if !res.status().is_success() {
-                        panic!("Can NOT send the question!");
+                        logger.error("Can NOT send the question!");
                     }
+                    logger.info("question sended successfully");
                 } else {
-                    panic!("Can NOT make a post request!");
+                    logger.error("Can NOT make a post request!");
                 }
             }
         }
@@ -134,12 +139,13 @@ async fn send(abstraction_tree: parser::McqpList) {
 }
 
 pub async fn main(command: &ArgMatches) {
+    let logger = Log::new("sender");
     let file = command.get_one::<String>("FILE").unwrap();
     let file_state = file::state(file.clone());
     if file_state == file::FileState::NotFound {
-        panic!("File NOT found!");
+        logger.error("File NOT found!");
     } else if file_state == file::FileState::NotMcqpFile {
-        panic!("File type is NOT .mcq!");
+        logger.error("File type is NOT .mcq!");
     }
     let mut abstraction_tree = parser::McqpList::new(
         std::path::PathBuf::new().join(file)
