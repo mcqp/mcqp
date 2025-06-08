@@ -28,6 +28,7 @@ mod log;
 mod config;
 mod utils;
 mod display;
+mod check;
 
 #[tokio::main]
 async fn main() {

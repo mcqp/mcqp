@@ -45,6 +45,12 @@ impl Config {
                                     &format!("Error at line {}, expect number found '{}'", line_number, num_str)
                                 );
                             }
+                        } 
+                        
+                        else {
+                            logger.error(
+                                &format!("Undefined configuration option at line {}", line_number)
+                            );
                         }
                     }
                     else {

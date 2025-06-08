@@ -146,7 +146,7 @@ impl McqpList {
 
                     else { 
                         logger.error(
-                            &format!("Error in line {}", line_number)
+                            &format!("Undefined keyword at line {}", line_number)
                         );
                     }
 
