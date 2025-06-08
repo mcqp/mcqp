@@ -1,7 +1,5 @@
 config:
   counter = 30
-  bot-token = <YOUR-BOT-TOKEN>
-  chat-id = <YOUR-CHAT-ID>
 
 q: Rust is the best? <NOTE: Yes, Rust is the best!>
   a. Yes *

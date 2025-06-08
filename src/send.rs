@@ -8,6 +8,7 @@ use serde::Serialize;
 use crate::file;
 use crate::parser;
 use crate::log::Log;
+use crate::config;
 
 #[derive(Serialize)]
 struct MessageDto {
@@ -28,27 +29,18 @@ struct PollDto {
     explanation: String
 }
 
-async fn send(abstraction_tree: parser::McqpList) {
-    let mut _poll_api_url: String = String::new();
-    let mut _message_api_url: String = String::new();
-    let mut _chat_id: String = String::new();
+async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
+    let poll_api_url = format!("https://api.telegram.org/bot{}/sendpoll", send_config.bot_token);
+    let message_api_url = format!("https://api.telegram.org/bot{}/sendMessage", send_config.bot_token);
     let logger = Log::new("sender");
-    if abstraction_tree.config.is_none() {
-        todo!("Get the config from the data dir!");
-    } else {
-        let config = abstraction_tree.config.unwrap();
-        _chat_id = config.chat_id;
-        _poll_api_url = format!("https://api.telegram.org/bot{}/sendpoll", config.bot_token);
-        _message_api_url = format!("https://api.telegram.org/bot{}/sendMessage", config.bot_token);
-    }
     let client = Client::new();
     for section in abstraction_tree.mcqps {
         match section._type {
             parser::McqpType::Message => {
                 let message = section.message.unwrap();
-                let res_ruslt = client.post(_message_api_url.clone())
+                let res_ruslt = client.post(message_api_url.clone())
                     .json(&MessageDto {
-                        chat_id: _chat_id.clone(),
+                        chat_id: send_config.chat_id.clone(),
                         text: message.m
                     })
                     .send()
@@ -64,9 +56,9 @@ async fn send(abstraction_tree: parser::McqpList) {
             }
             parser::McqpType::Poll => {
                 let poll = section.poll.unwrap();
-                let res_ruslt = client.post(_poll_api_url.clone())
+                let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
-                        chat_id: _chat_id.clone(),
+                        chat_id: send_config.chat_id.clone(),
                         question: poll.p,
                         options: poll.choices,
                         is_anonymous: true,
@@ -88,9 +80,9 @@ async fn send(abstraction_tree: parser::McqpList) {
             }
             parser::McqpType::MCPoll => {
                 let poll = section.poll.unwrap();
-                let res_ruslt = client.post(_poll_api_url.clone())
+                let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
-                        chat_id: _chat_id.clone(),
+                        chat_id: send_config.chat_id.clone(),
                         question: poll.p,
                         options: poll.choices,
                         is_anonymous: true,
@@ -112,9 +104,9 @@ async fn send(abstraction_tree: parser::McqpList) {
             }
             parser::McqpType::Question => {
                 let question = section.question.unwrap();
-                let res_ruslt = client.post(_poll_api_url.clone())
+                let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
-                        chat_id: _chat_id.clone(),
+                        chat_id: send_config.chat_id.clone(),
                         question: question.q,
                         options: question.choices,
                         is_anonymous: true,
@@ -142,6 +134,7 @@ pub async fn main(command: &ArgMatches) {
     let logger = Log::new("sender");
     let file = command.get_one::<String>("FILE").unwrap();
     let file_state = file::state(file.clone());
+    let mut send_config = config::Config::new();
     if file_state == file::FileState::NotFound {
         logger.error("File NOT found!");
     } else if file_state == file::FileState::NotMcqpFile {
@@ -151,5 +144,6 @@ pub async fn main(command: &ArgMatches) {
         std::path::PathBuf::new().join(file)
     );
     abstraction_tree.parse();
-    send(abstraction_tree).await;
+    send_config.get_config();
+    send(abstraction_tree, send_config).await;
 }

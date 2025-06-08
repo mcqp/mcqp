@@ -36,7 +36,7 @@ pub struct McqpList {
     pub message_count: u16,
     pub file_path: std::path::PathBuf,
     pub mcqps: Vec<Mcqp>,
-    pub config: Option<Config>
+    pub config: Config
 }
 
 impl McqpList {
@@ -47,7 +47,7 @@ impl McqpList {
             message_count: 0, 
             file_path: file_path,
             mcqps: Vec::new(),
-            config: None
+            config: Config::new()
         };
     }
 
@@ -126,7 +126,7 @@ impl McqpList {
                     else if line_content.starts_with("config:") { 
                         let mut config = Config::new();
                         config.parse_configs(&mut lines, &mut line_number);
-                        self.config = Some(config);
+                        self.config = config;
                     }
 
                     // Parse the comments
