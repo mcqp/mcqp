@@ -180,7 +180,7 @@ impl Config {
             .unwrap_or_else(|| logger.error("Can NOT get the data dir!"))
             .join("mcqp/data/config.json");
         if !config_file.exists() {
-            logger.error("Configurations NOT found!")
+            logger.error("Configurations NOT found, Please use 'mcqp config' to set the configurations");
         }
         let mut file = std::fs::File::open(config_file)
             .unwrap_or_else(|_| logger.error("Can NOT open the config file!"));
