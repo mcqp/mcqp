@@ -7,9 +7,11 @@ use clap::{arg, Command};
 pub fn main() -> [Command; 3] {
     return [
         Command::new("send")
+            .about("Parse and then send the .mcq file to telegram.")
             .arg(arg!(<FILE> "The .mcq file path. (e.g. \"./dir/to/test.mcq\")")),
         Command::new("check")
             .arg(arg!(<FILE> "The .mcq file path. (e.g. \"./dir/to/test.mcq\")")),
         Command::new("config")
+            .about("Configure the bot-token and chat-id.")
     ];
 }

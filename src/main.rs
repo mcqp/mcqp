@@ -25,6 +25,9 @@ mod file;
 mod sections;
 mod parser;
 mod log;
+mod config;
+mod utils;
+mod display;
 
 #[tokio::main]
 async fn main() {

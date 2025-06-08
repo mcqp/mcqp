@@ -6,6 +6,7 @@ use clap::ArgMatches;
 pub async fn main(commands: ArgMatches) {
     match commands.subcommand() {
         Some(("send", command)) => crate::send::main(command).await,
+        Some(("config", command)) => crate::config::main(command).await,
         _ => println!("Hello world")
     }
 }
