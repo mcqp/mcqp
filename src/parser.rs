@@ -71,6 +71,10 @@ impl McqpList {
                         let mut poll = Poll::new();
                         poll.parse_question(line_content.clone(), 2);
                         poll.parse_choices(&mut lines, &mut line_number);
+                        if self.config.counter.0 {
+                            poll.p = format!("[{}] {}", self.config.counter.1, poll.p);
+                            self.config.counter.1 += 1;
+                        }
                         self.poll_count += 1;
                         self.mcqps.push(Mcqp {
                             _type: McqpType::Poll,
@@ -85,6 +89,10 @@ impl McqpList {
                         let mut question = Question::new();
                         question.parse_question(line_content.clone());
                         question.parse_choices(&mut lines, &mut line_number);
+                        if self.config.counter.0 {
+                            question.q = format!("[{}] {}", self.config.counter.1, question.q);
+                            self.config.counter.1 += 1;
+                        }
                         self.question_count += 1;
                         self.mcqps.push(Mcqp {
                             _type: McqpType::Question,
@@ -100,6 +108,10 @@ impl McqpList {
                         mcpoll.parse_question(line_content.clone(), 4);
                         mcpoll.is_mcp = true;
                         mcpoll.parse_choices(&mut lines, &mut line_number);
+                        if self.config.counter.0 {
+                            mcpoll.p = format!("[{}] {}", self.config.counter.1, mcpoll.p);
+                            self.config.counter.1 += 1;
+                        }
                         self.poll_count += 1;
                         self.mcqps.push(Mcqp {
                             _type: McqpType::MCPoll,
