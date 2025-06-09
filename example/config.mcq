@@ -1,0 +1,33 @@
+// You can use `config:` to create the config section.
+// You need to add the config section in the header of the file.
+// If the config section add after some questions of poll sections will not configure them.
+// Sections must be separated with new line.
+
+// This will add the counter for all polls and questions after the config
+config:
+    counter = 0
+
+// It will add the counter at the start of the question like this: `[0] How are you today?`
+q: How are you today? <NOTE: You must be amazing :)>
+    Amazing *
+    Good
+    Bad
+    Horrible
+
+// This question will have the counter + 1 like this: `[1] How are you today?`
+q: How are you today? <NOTE: You must be amazing :)>
+    Amazing *
+    Good
+    Bad
+    Horrible
+
+// This will override the previous config section
+config:
+    counter = 100
+
+// It will be like this: `[100] How are you today?`
+q: How are you today? <NOTE: You must be amazing :)>
+    Amazing *
+    Good
+    Bad
+    Horrible

@@ -1,0 +1,17 @@
+// You can use `p:` to create the poll section.
+// Sections must be separated with new line.
+
+// A single choice poll
+p: How are you today?
+    Amazing
+    Good
+    Bad
+    Horrible
+
+p: What are you currently using?
+    Rust
+    C++
+    Go
+    Python
+    Java
+    JavaScrypt

@@ -1,0 +1,21 @@
+// You can use `m:(` to create the message section.
+// You must use `):endm` to end the message section.
+// The interpretation will start after the `m:(` line.
+// Sections must be separated with new line.
+
+// The message section
+m:(
+This is a message
+):endm
+
+// this message section will throw an error at line 13
+m:(This is a message):endm
+
+// this message section will throw an error at line 17
+m:(
+This is a message):endm
+
+// this message section is valid
+m:(
+This is a message
+        ):endm
