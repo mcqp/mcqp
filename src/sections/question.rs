@@ -27,7 +27,8 @@ impl Question {
     }
 
     /// Parse the question string and the note string.
-    pub fn parse_question(&mut self, line_content: String) {
+    pub fn parse_question(&mut self, line_content: String, line_number: usize) {
+        let logger = Log::new("question-parser");
         // Getting the question and the note after the "q:"
         let q_and_note = line_content[2..].trim();
         if let Some(note_postion) =  q_and_note.find("<NOTE:") {
@@ -46,6 +47,30 @@ impl Question {
         } else {
             self.q = q_and_note.to_string();
         }
+        // Question length must be in range of 1 to 255
+        let q_len = self.q.chars().count();
+        if q_len > 255 || q_len < 1 {
+            logger.error(
+                &format!(
+                    "The length of the question at line {} must be in range of 1 to 255, found {}!", 
+                    line_number,
+                    q_len
+                )
+            );
+        }
+        // Note length must be in range of 1 to 200
+        if self.note.is_some() {
+            let note_len = self.note.clone().unwrap().chars().count();
+            if note_len < 1 || note_len > 200 {
+                logger.error(
+                    &format!(
+                        "The length of the question note at line {} must be in range of 1 to 200, found {}!",
+                        line_number,
+                        note_len
+                    )
+                );
+            }
+        }
     }
 
     /// Parse the question choices.
@@ -60,13 +85,23 @@ impl Question {
                         if choice.ends_with("*") {
                             self.answer = self.choices.len();
                         }
-                        self.choices.push(
-                            line_content
-                                .strip_suffix("*")
-                                .unwrap_or(&line_content)
-                                .trim()
-                                .to_string()
-                        );
+                        let choice = line_content
+                            .strip_suffix("*")
+                            .unwrap_or(&line_content)
+                            .trim()
+                            .to_string();
+                        // The choice length must be in ragne of 1 to 100
+                        let choice_len = choice.chars().count();
+                        if  choice_len < 1 || choice_len > 100 {
+                            logger.error(
+                                &format!(
+                                    "The choice length at line {} must be in range of 1 to 100, found {}!", 
+                                    line_number,
+                                    choice_len
+                                )
+                            );
+                        } 
+                        self.choices.push(choice);
                     }
                     else {
                         break;
@@ -79,6 +114,17 @@ impl Question {
             } else {
                 break;
             }
+        }
+        // The number of choices must be in range of 1 to 10
+        let choices_len = self.choices.len();
+        if choices_len < 1 || choices_len > 10 {
+            logger.error(
+                &format!(
+                    "The number of choices at line {} must be in range of 1 to 10, found {}!", 
+                    *line_number-1,
+                    choices_len
+                )
+            );
         }
     }
 }

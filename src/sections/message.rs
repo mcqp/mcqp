@@ -39,5 +39,10 @@ impl Message {
             .strip_suffix("\n")
             .unwrap_or(&self.m)
             .to_string();
+        if self.m.chars().count() < 1 {
+            logger.error(
+                &format!("The message length at line {} must be at least one character!", line_number)
+            );
+        }
     }
 }

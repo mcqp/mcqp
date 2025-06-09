@@ -108,7 +108,7 @@ impl McqpList {
                     // Parse the poll section 
                     else if line_content.starts_with("p:") {
                         let mut poll = Poll::new();
-                        poll.parse_question(line_content.clone(), 2);
+                        poll.parse_question(line_content.clone(), 2, line_number);
                         poll.parse_choices(&mut lines, &mut line_number);
                         if self.config.counter.0 {
                             poll.p = format!("[{}] {}", self.config.counter.1, poll.p);
@@ -126,7 +126,7 @@ impl McqpList {
                     // Parse the question section
                     else if line_content.starts_with("q:") { 
                         let mut question = Question::new();
-                        question.parse_question(line_content.clone());
+                        question.parse_question(line_content.clone(), line_number);
                         question.parse_choices(&mut lines, &mut line_number);
                         if self.config.counter.0 {
                             question.q = format!("[{}] {}", self.config.counter.1, question.q);
@@ -144,7 +144,7 @@ impl McqpList {
                     // Parse the multiple choice poll section
                     else if line_content.starts_with("mcp:") { 
                         let mut mcpoll = Poll::new();
-                        mcpoll.parse_question(line_content.clone(), 4);
+                        mcpoll.parse_question(line_content.clone(), 4, line_number);
                         mcpoll.is_mcp = true;
                         mcpoll.parse_choices(&mut lines, &mut line_number);
                         if self.config.counter.0 {
