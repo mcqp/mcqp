@@ -33,7 +33,7 @@ mod check;
 #[tokio::main]
 async fn main() {
     let arg_matches = Command::new("mcqp")
-        .about("")
+        .about("A CLI tool for sending messages/polls to telegram.")
         .version("0.1.0")
         .author("Mohaned Sherhan")
         .subcommands(command::main())
