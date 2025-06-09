@@ -24,6 +24,7 @@ impl Poll {
         }
     }
 
+    /// Parse the poll question.
     pub fn parse_question(&mut self, line_content: String, len: usize) {
         // Getting the question after the "p:"
         // if the line_content = "p: this is question?"
@@ -31,6 +32,7 @@ impl Poll {
         self.p = line_content[len..].trim().to_string();
     }
 
+    /// Parse the poll choices.
     pub fn parse_choices(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
         let logger = Log::new("poll-parser");
         loop {

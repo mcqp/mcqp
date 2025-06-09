@@ -1,5 +1,5 @@
-/// This file is part of mcqp project, licensed under the GPL v3.
-/// See the LICENSE file for full license details.
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
 
 use std::{fs::File, io::{BufRead, BufReader}};
 
@@ -11,18 +11,20 @@ use crate::sections::{
 };
 use crate::log::Log;
 
+/// The .mcq sections types.
 #[derive(PartialEq, Debug)]
 pub enum McqpType {
-    /// Send as poll
+    /// Poll section
     Poll,
-    /// Send as question
+    /// Question section
     Question,
-    /// Send as multiple choice poll
+    /// Multiple choice poll section
     MCPoll,
-    /// Send as message
+    /// Message section
     Message
 }
 
+/// The .mcq section tree.
 pub struct Mcqp {
     pub _type: McqpType,
     pub poll: Option<Poll>,
@@ -30,6 +32,35 @@ pub struct Mcqp {
     pub message: Option<Message>
 }
 
+/// The .mcq sections tree list.
+/// 
+/// ### Example:
+/// ```
+/// McqpList {
+///     poll_count: 1,
+///     question_count: 0,
+///     message_count: 0,
+///     config: Config {
+///         counter: 20
+///     },
+///     mcqps: vec![
+///         Mcqp {
+///             _type: McqpType::Poll,
+///             poll: Some(Poll {
+///                 p: "A single choice poll".to_string(),
+///                 choices: vec![
+///                     "One".to_string(),
+///                     "Two".to_string(),
+///                     "Three".to_string(),
+///                 ],
+///                 is_mcp: false
+///             }),
+///             question: None,
+///             message: None
+///         }
+///     ]
+/// }
+/// ```
 pub struct McqpList {
     pub poll_count: u16,
     pub question_count: u16,
@@ -45,12 +76,20 @@ impl McqpList {
             poll_count: 0, 
             question_count: 0, 
             message_count: 0, 
-            file_path: file_path,
+            file_path,
             mcqps: Vec::new(),
             config: Config::new()
         };
     }
 
+    /// Parsing the sections to `McqpList`. 
+    /// Supported keywords:
+    /// - `p:` the poll section
+    /// - `q:` the question section
+    /// - `mcp:` the multiple choice poll section
+    /// - `m:(` the message section
+    /// - `config:` the configuration section
+    /// - `//` a comment
     pub fn parse(&mut self) {
         let file = File::open(self.file_path.clone())
             .expect("Can NOT open the file!");

@@ -1,14 +1,18 @@
-/// This file is part of mcqp project, licensed under the GPL v3.
-/// See the LICENSE file for full license details.
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
 
 use std::{fs::File, io::{BufReader, Lines}};
 
 use crate::log::Log;
 
 pub struct Question {
+    /// The question string
     pub q: String,
+    /// The choices list
     pub choices: Vec<String>,
+    /// The correct cohice index
     pub answer: usize,
+    /// The question note
     pub note: Option<String>,
 }
 
@@ -22,6 +26,7 @@ impl Question {
         };
     }
 
+    /// Parse the question string and the note string.
     pub fn parse_question(&mut self, line_content: String) {
         // Getting the question and the note after the "q:"
         let q_and_note = line_content[2..].trim();
@@ -43,6 +48,7 @@ impl Question {
         }
     }
 
+    /// Parse the question choices.
     pub fn parse_choices(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
         let logger = Log::new("question-parser");
         loop {

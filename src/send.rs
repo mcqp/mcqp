@@ -10,12 +10,14 @@ use crate::parser;
 use crate::log::Log;
 use crate::config;
 
+/// The send message DTO
 #[derive(Serialize)]
 struct MessageDto {
     text: String,
     chat_id: String
 }
 
+/// The send poll DTO
 #[derive(Serialize)]
 struct PollDto {
     chat_id: String,
@@ -29,6 +31,7 @@ struct PollDto {
     explanation: String
 }
 
+/// Send .mcq abstraction tree to telegram.
 async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
     let poll_api_url = format!("https://api.telegram.org/bot{}/sendpoll", send_config.bot_token);
     let message_api_url = format!("https://api.telegram.org/bot{}/sendMessage", send_config.bot_token);
@@ -51,7 +54,8 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                     }
                     logger.info("message sended successfully");
                 } else {
-                    logger.error("Can NOT make a post request!");
+                    // Network error
+                    logger.error("Network error, can NOT make a post request!");
                 }
             }
             parser::McqpType::Poll => {
@@ -75,7 +79,8 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                     }
                     logger.info("poll sended successfully");
                 } else {
-                    logger.error("Can NOT make a post request!");
+                    // Network error
+                    logger.error("Network error, can NOT make a post request!");
                 }
             }
             parser::McqpType::MCPoll => {
@@ -99,7 +104,8 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                     }
                     logger.info("mc poll sended successfully");
                 } else {
-                    logger.error("Can NOT make a post request!");
+                    // Network error
+                    logger.error("Network error, can NOT make a post request!");
                 }
             }
             parser::McqpType::Question => {
@@ -123,7 +129,8 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                     }
                     logger.info("question sended successfully");
                 } else {
-                    logger.error("Can NOT make a post request!");
+                    // Network error
+                    logger.error("Network error, can NOT make a post request!");
                 }
             }
         }

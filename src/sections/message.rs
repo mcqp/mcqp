@@ -1,11 +1,12 @@
-/// This file is part of mcqp project, licensed under the GPL v3.
-/// See the LICENSE file for full license details.
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
 
 use std::{fs::File, io::{BufReader, Lines}};
 
 use crate::log::Log;
 
 pub struct Message {
+    /// The message body
     pub m: String,
 }
 
@@ -14,6 +15,7 @@ impl Message {
         return Message { m: String::new() };
     }
 
+    /// Parse the message body.
     pub fn parse_body(&mut self, lines: &mut Lines<BufReader<File>>, line_number: &mut usize) {
         let logger = Log::new("message-parser");
         loop {

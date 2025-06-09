@@ -1,5 +1,5 @@
-/// This file is part of mcqp project, licensed under the GPL v3.
-/// See the LICENSE file for full license details.
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
 
 
 use std::{fs::File, io::{BufReader, Lines}};

@@ -15,7 +15,7 @@ pub struct Config {
     pub chat_id: String,
 }
 
-/// The Bot response. 
+/// The bot API response.
 #[derive(Deserialize)]
 struct BotResDto<T> {
     result: T
@@ -33,7 +33,7 @@ pub struct BotResult {
     pub username: String,
 }
 
-/// The bot `getUpdates` result.
+/// The bot `getUpdates` API result.
 /// It contains chats and messages information.
 #[derive(Deserialize)]
 pub struct ChatResult {
@@ -110,7 +110,7 @@ impl Config {
         }
     }
 
-    /// Set chat-id base of the bot chats,
+    /// Set chat-id based in the bot chats,
     /// Send get to `https://api.telegram.org/bot<BOT-TOKEN>/getUpdates`
     /// to get bot chats.
     pub async fn set_chat_id(&mut self) {

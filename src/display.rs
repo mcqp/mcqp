@@ -8,6 +8,7 @@ use crate::config::{BotResult, Message};
 pub struct Display;
 
 impl Display {
+    /// Display the bot information.
     pub fn bot_info(info: BotResult) {
         println!(
             "ID: {}\nName: {}\nUsername: {}",
@@ -17,6 +18,7 @@ impl Display {
         );
     }
 
+    /// Display the bot chat information.
     pub fn bot_chat_info(message: &Message) {
         println!(
             "Chat ID: {}\nName: {}\nUsername: {}\nMessage: {}\nChat Type: {}",
