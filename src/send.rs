@@ -118,7 +118,7 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                         is_anonymous: true,
                         _type: "quiz".to_string(),
                         allows_multiple_answers: false,
-                        correct_option_id: question.answer,
+                        correct_option_id: question.answer as usize,
                         explanation: question.note.unwrap_or("".to_string())
                     })
                     .send()

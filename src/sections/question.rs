@@ -11,7 +11,7 @@ pub struct Question {
     /// The choices list
     pub choices: Vec<String>,
     /// The correct cohice index
-    pub answer: usize,
+    pub answer: i8,
     /// The question note
     pub note: Option<String>,
 }
@@ -21,7 +21,7 @@ impl Question {
         return Question {
             q: String::new(),
             choices: Vec::new(),
-            answer: 0,
+            answer: -1,
             note: None
         };
     }
@@ -83,7 +83,7 @@ impl Question {
                     if line_content.starts_with(" ") && line_content.trim().len() > 0 {
                         let choice = line_content.trim();
                         if choice.ends_with("*") {
-                            self.answer = self.choices.len();
+                            self.answer = self.choices.len() as i8;
                         }
                         let choice = line_content
                             .strip_suffix("*")
@@ -124,6 +124,11 @@ impl Question {
                     *line_number-1,
                     choices_len
                 )
+            );
+        }
+        if self.answer == -1 {
+            logger.error(
+                &format!("You must choice the correct option at line {}", line_number)
             );
         }
     }
