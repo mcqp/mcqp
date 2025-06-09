@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Test
+        run: cargo test --target x86_64-unknown-linux-gnu
+
+      - name: Build
+        run: cargo build -r --target x86_64-unknown-linux-gnu
+
+      - name: Create bin directory structure
+        run: mkdir -p mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64/bin
+
+      - name: Move executable to bin/mcqp
+        run: mv target/x86_64-unknown-linux-gnu/release/mcqp mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64/bin/mcqp
+
+      - name: Create .tar.gz archive
+        run: tar -czvf mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64.tar.gz mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64
+
+      - name: Generate .deb package
+        run: |
+          cargo install cargo-deb
+          cargo deb
+
+      - name: Upload .deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-linux-x86_64
+          path: target/debian/*.deb
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: linux-x86_64
+          path: mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64.tar.gz
+  
+  build-macos:
+    name: Build MacOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Test
+        run: cargo test --target aarch64-apple-darwin
+
+      - name: Build
+        run: cargo build -r --target aarch64-apple-darwin
+
+      - name: Create bin directory structure
+        run: mkdir -p mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64/bin
+
+      - name: Move executable to bin/mcqp
+        run: mv target/aarch64-apple-darwin/release/mcqp mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64/bin/mcqp
+
+      - name: Create .tar.gz archive
+        run: tar -czvf mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64.tar.gz mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: macos-aarch64
+          path: mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64.tar.gz
+
+  release:
+    name: Create Release
+    needs: [build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            linux-x86_64/mcqp_${{ vars.MCQP_VERISON }}_linux_x86_64.tar.gz
+            deb-linux-x86_64/*.deb
+            macos-aarch64/mcqp_${{ vars.MCQP_VERISON }}_macos_aarch64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,33 @@
 name = "mcqp"
 version = "0.1.0"
 edition = "2024"
+description = "A CLI tool for sending messages/polls to telegram."
+authors = ["Mohaned Sherhan"]
+license-file = "LICENSE"
+keywords = ["cli", "interpreter", "telegram"]
+repository = "https://github.com/mcqp/mcqp"
+documentation = "https://mcqp.github.io/docs/intro"
+homepage = "https://mcqp.github.io/"
+
+[package.metadata.deb]
+maintainer = "Mohaned Sherhan"
+copyright = "2025, Mohaned Sherhan"
+license-file = ["LICENSE"]
+extended-description = """A CLI tool for sending messages/polls to telegram."""
+depends = "$auto"
+assets = [
+    ["target/release/mcqp", "usr/local/bin/", "755"],
+]
+
+[[bin]]
+name = "mcqp"
+path = "src/main.rs"
+
+[profile.release]
+strip = true
+opt-level = "s"
+lto = true
+codegen-units = 1
 
 [dependencies]
 clap = "4.5.39"
