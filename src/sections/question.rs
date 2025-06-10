@@ -41,7 +41,9 @@ impl Question {
             } else {
                 self.note = Some(
                     // remove the end ">" from the note
-                    note[..note.chars().count()-1].to_string()
+                    note.strip_suffix(">")
+                        .unwrap_or(note)
+                        .to_string()
                 );
             }
         } else {
