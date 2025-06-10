@@ -11,16 +11,18 @@ or anyone who wants to send a set of questions or make exams on **Telegram**.
 config:
     counter = 1
 
+// NOTE: the \ in the end of the code block is just for the github markdown
+// to be display in the README.md file.
 m:(
 Hello world from .mcq file!
 ```rs
 fn main() {
   println!("Hello world");
 }
-```
+\```
 ):endm
 
-q: How are you today? <NOTE: You must be amazing :)>
+q: How are you today? <NOTE: You must be amazing 😁>
     Amazing *
     Good
     Bad
