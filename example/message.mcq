@@ -8,6 +8,27 @@ m:(
 This is a message
 ):endm
 
+// You can use some markdown
+// Markdown parser:
+//      * * for bold text
+//      _ _ for italic text
+//      ` ` for copy text
+//      ``` ``` for code block
+//      [text](URL) for links
+// NOTE: The parser does not paser links []() well, be careful of that.
+m:(
+This is a *markdown* message
+
+you can use this command to run the _checks_: `mcqp check ./example/message.mcq`
+
+you can download the new version of *mcqp* from [release page](https://github.com/mcqp/mcqp/releases)
+
+run this command to check the *mcqp version*:
+```bash
+$ mcqp --version
+```
+):endm
+
 // this message section will throw an error at line 13
 m:(This is a message):endm
 

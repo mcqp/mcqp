@@ -1,5 +1,5 @@
-/// This file is part of mcqp project, licensed under the GPL v3.
-/// See the LICENSE file for full license details.
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
 
 use clap::ArgMatches;
 use reqwest::Client;
@@ -14,7 +14,8 @@ use crate::config;
 #[derive(Serialize)]
 struct MessageDto {
     text: String,
-    chat_id: String
+    chat_id: String,
+    parse_mode: String
 }
 
 /// The send poll DTO
@@ -44,7 +45,8 @@ async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
                 let res_ruslt = client.post(message_api_url.clone())
                     .json(&MessageDto {
                         chat_id: send_config.chat_id.clone(),
-                        text: message.m
+                        text: message.m,
+                        parse_mode: "Markdown".to_string()
                     })
                     .send()
                     .await;

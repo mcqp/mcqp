@@ -13,6 +13,11 @@ config:
 
 m:(
 Hello world from .mcq file!
+```rs
+fn main() {
+  println!("Hello world");
+}
+```
 ):endm
 
 q: How are you today? <NOTE: You must be amazing :)>
