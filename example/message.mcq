@@ -29,10 +29,10 @@ $ mcqp --version
 ```
 ):endm
 
-// this message section will throw an error at line 13
+// this message section will throw an error at line 34
 m:(This is a message):endm
 
-// this message section will throw an error at line 17
+// this message section will throw an error at line 38
 m:(
 This is a message):endm
 
