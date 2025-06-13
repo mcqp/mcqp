@@ -34,7 +34,7 @@ mod check;
 async fn main() {
     let arg_matches = Command::new("mcqp")
         .about("A CLI tool for sending messages/polls to telegram.")
-        .version("0.1.0-beta.1")
+        .version("0.1.0")
         .author("Mohaned Sherhan")
         .subcommands(command::main())
         .get_matches();

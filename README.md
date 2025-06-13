@@ -5,6 +5,9 @@ the `.mcq` file it is a file type use to write the **MCQP** syntax and helps the
 bunch of messages and polls and send them to **Telegram**. The **MCQP** project came to help the students
 or anyone who wants to send a set of questions or make exams on **Telegram**.
 
+### Documentation
+For more information see the [MCQP website](https://mcqp.github.io).
+
 ## Simple MCQP Syntax Example
 ```mcq
 // config the questions/polls counter to start from 1
