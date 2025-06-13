@@ -6,6 +6,7 @@ use clap::ArgMatches;
 use dirs::data_dir;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 use crate::{display::Display, log::Log, utils};
 
@@ -151,6 +152,41 @@ impl Config {
         }
     }
 
+    /// Set the bot information (description and short description).
+    /// Send post to:
+    /// - `https://api.telegram.org/bot<BOT-TOKEN>/setMyDescription` 
+    /// - `https://api.telegram.org/bot<BOT-TOKEN>/setMyShortDescription`
+    pub async fn set_bot_information(&self) {
+        let website_link = "https://mcqp.github.io/";
+        let set_my_description_api = format!(
+            "https://api.telegram.org/bot{}/setMyDescription",
+            self.bot_token
+        );
+        let set_my_short_description_api = format!(
+            "https://api.telegram.org/bot{}/setMyShortDescription",
+            self.bot_token
+        );
+        let description = format!(
+            "Hi there 👋,\nThis bot uses the MCQP project.\nFor more information, visit the official MCQP website at {}",
+            website_link
+        );
+        let short_description = format!(
+            "This bot was create to use the MCQP project. For more information: {}",
+            website_link
+        );
+        let client = Client::new();
+        let _ = client
+            .post(set_my_description_api)
+            .json(&json!({"description": description}))
+            .send()
+            .await;
+        let _ = client
+            .post(set_my_short_description_api)
+            .json(&json!({"short_description": short_description}))
+            .send()
+            .await;
+    }
+
     /// Save configurations to data dir. The config file is not encrypted!
     pub fn save(&self) {
         let logger = Log::new("save-config");
@@ -201,5 +237,6 @@ pub async fn main( _: &ArgMatches ) {
     config.set_bot_token().await;
     let _ = utils::input("Please send any text message to the bot and then press enter...");
     config.set_chat_id().await;
+    config.set_bot_information().await;
     config.save();
 }
