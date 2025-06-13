@@ -121,34 +121,34 @@ impl Config {
         )
         .send()
         .await {
-        if res.status().is_success() {
-            let res_json = res.json::<BotResDto<Vec<ChatResult>>>().await;
-            if let Ok(info) = res_json {
-                // show all messages sended to the bot
-                println!("\n----- Chats:");
-                for i in &info.result {
-                    Display::bot_chat_info(&i.message);
-                    println!("");
+            if res.status().is_success() {
+                let res_json = res.json::<BotResDto<Vec<ChatResult>>>().await;
+                if let Ok(info) = res_json {
+                    // show all messages sended to the bot
+                    println!("\n----- Chats:");
+                    for i in &info.result {
+                        Display::bot_chat_info(&i.message);
+                        println!("");
+                    }
+                    // Get the chat-id based on the bot chats
+                    let chat_id = utils::input("Based on the chats enter your chat-id: ");
+                    if info.result.iter().find(|x| x.message.chat.id.to_string() == chat_id).is_none() {
+                        logger.error("Chat id is not in the bot chats!");
+                    }
+                    self.chat_id = chat_id;
+                } else {
+                    // Can not parse the response to JSON
+                    logger.error("Can NOT parse the response!");
                 }
-                // Get the chat-id based on the bot chats
-                let chat_id = utils::input("Based on the chats enter your chat-id: ");
-                if info.result.iter().find(|x| x.message.chat.id.to_string() == chat_id).is_none() {
-                    logger.error("Chat id is not in the bot chats!");
-                }
-                self.chat_id = chat_id;
             } else {
-                // Can not parse the response to JSON
-                logger.error("Can NOT parse the response!");
+                // The response is not 200, if it is 400 or 404 or 403 
+                // this means the token is invalid.
+                logger.error("Invalid bot token!");
             }
         } else {
-            // The response is not 200, if it is 400 or 404 or 403 
-            // this means the token is invalid.
-            logger.error("Invalid bot token!");
+            // Network error
+            logger.error("Network error can NOT send the request!");
         }
-    } else {
-        // Network error
-        logger.error("Network error can NOT send the request!");
-    }
     }
 
     /// Save configurations to data dir. The config file is not encrypted!
