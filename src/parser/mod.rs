@@ -112,16 +112,22 @@ impl McqpList {
             else if MCQPParser::parse(Rule::EMPTY_LINE, line).is_ok() { continue; }
 
             // Parse the Poll section.
-            else if MCQPParser::parse(Rule::POLL_START, line).is_ok() { self.parse_poll(line); }
+            else if MCQPParser::parse(Rule::POLL_START, line).is_ok() { self.parse_poll(line, false); }
 
             // Parse the Question section.
             else if MCQPParser::parse(Rule::QUESTION_START, line).is_ok() { self.parse_question(line); }
+
+            // Parse the Multichoice Poll section.
+            else if MCQPParser::parse(Rule::MCPOLL_START, line).is_ok() { self.parse_poll(line, true); }
         }
     }
 
     /// The Poll header and the Poll options parser.
-    fn parse_poll(&mut self, line: &str) {
-        let poll_header_result = MCQPParser::parse(Rule::POLL_HEADER, line);
+    fn parse_poll(&mut self, line: &str, is_mcpoll: bool) {
+        let poll_header_result = MCQPParser::parse(
+            if is_mcpoll { Rule::MCPOLL_HEADER } else { Rule::POLL_HEADER },
+            line
+        );
         if let Ok(poll_header_abt) = poll_header_result {
             let mut poll = poll_parser::Poll::new();
             poll.parse_header(poll_header_abt);
@@ -147,7 +153,7 @@ impl McqpList {
             }
             self.poll_count += 1;
             self.mcqps.push(Mcqp {
-                _type: McqpType::Poll,
+                _type: if is_mcpoll { McqpType::MCPoll } else { McqpType::Poll },
                 poll: Some(poll),
                 question: None,
                 message: None
