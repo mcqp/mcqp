@@ -3,6 +3,7 @@
 
 // The sections parsers.
 mod poll_parser;
+mod question_parser;
 
 // 3-party packages
 use pest::Parser;
@@ -11,8 +12,7 @@ use pest_derive::Parser;
 // The MCQP modules
 use crate::sections::{
     config::Config,
-    message::Message,
-    question::Question
+    message::Message
 };
 use crate::file::FileReader;
 
@@ -36,7 +36,7 @@ pub struct Mcqp {
     /// The poll information.
     pub poll: Option<poll_parser::Poll>,
     /// The question information.
-    pub question: Option<Question>,
+    pub question: Option<question_parser::Question>,
     /// The message information.
     pub message: Option<Message>
 }
@@ -114,6 +114,8 @@ impl McqpList {
             // Parse the Poll section.
             else if MCQPParser::parse(Rule::POLL_START, line).is_ok() { self.parse_poll(line); }
 
+            // Parse the Question section.
+            else if MCQPParser::parse(Rule::QUESTION_START, line).is_ok() { self.parse_question(line); }
         }
     }
 
@@ -123,8 +125,8 @@ impl McqpList {
         if let Ok(poll_header_abt) = poll_header_result {
             let mut poll = poll_parser::Poll::new();
             poll.parse_header(poll_header_abt);
-            while let Some(line) = self.file_reader.next_line() {
-                if let Ok(option_abt) = MCQPParser::parse(Rule::OPTION, &line) {
+            while let Some(line) = &self.file_reader.next_line() {
+                if let Ok(option_abt) = MCQPParser::parse(Rule::OPTION, line) {
                     poll.parse_option(option_abt);
                     if !poll.is_last_option_valid() {
                         // TODO: Error with line and point to the line.
@@ -152,6 +154,42 @@ impl McqpList {
             });
         } 
         else if let Err(error) = poll_header_result {
+            println!("{:#?}", error);
+            // TODO: format the error.
+            todo!("format the error.");
+        }
+    }
+
+    /// The Question header and the Question options parser. 
+    fn parse_question(&mut self, line: &str) {
+        let question_header_result = MCQPParser::parse(Rule::QUESTION_HEADER, line);
+        if let Ok(question_header_abt) = question_header_result {
+            let mut question = question_parser::Question::new();
+            question.parse_header(question_header_abt);
+            while let Some(line) = &self.file_reader.next_line() {
+                if let Ok(option_abt) = MCQPParser::parse(Rule::OPTION, line) {
+                    question.parse_option(option_abt);
+                    if !question.is_last_option_valid() {
+                        // TODO: Error with line and point to the line.
+                        todo!("Error with line and point to the line.");
+                    }
+                    continue;
+                }
+                break;
+            }
+            self.file_reader.back_to_previous();
+            if !question.is_options_valid() {
+                // TODO: Error with line and point to the line.
+                todo!("Error with line and point to the line.");
+            }
+            self.question_count += 1;
+            self.mcqps.push(Mcqp { 
+                _type: McqpType::Question, 
+                poll: None, 
+                question: Some(question), 
+                message: None 
+            });
+        } else if let Err(error) = question_header_result {
             println!("{:#?}", error);
             // TODO: format the error.
             todo!("format the error.");
