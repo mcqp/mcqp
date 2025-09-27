@@ -1,0 +1,140 @@
+// This file is part of mcqp project, licensed under the GPL v3.
+// See the LICENSE file for full license details.
+
+
+/// Avoid any space in the strings.
+WHITESPACE = _{ " " | "\t" }
+
+/// The main rule for parsing the comment (`\t// text`, `   \t// text\n` or `\t// text\r\n`).
+COMMENT = { WHITESPACE* ~ "//" ~ ANY* }
+
+/// The main rule for parsing the empty line (` \n` or `\t\t\r\n`).
+EMPTY_LINE = { WHITESPACE* ~ (EOI | NEWLINE) }
+
+
+// ====================== The start of the question header grammar. ======================
+// This grammar must parse the header of the question, examples:
+// 1. "q: The Question Text <NOTE: The Note Text>"
+// 2. "q: The Question Text <> <NOTE: The Note Text>"
+// 3. "q: The Question Text <NOTE: The Note Text> will be avoided."
+// 4. "q: The Question Text"
+
+/// The start of the note block (`<NOTE:`).
+QUESTION_NOTE_START = { "<NOTE:" }
+
+/// The end of the note block (`>` or `>\n` or `>\r\n`).
+QUESTION_NOTE_END   = { ">" ~ NEWLINE? }
+
+/// The note text, it must end in the end of the note block (`QUESTION_NOTE_END`).
+QUESTION_NOTE       = { (!QUESTION_NOTE_END ~ ANY)+ }
+
+/// The main rule for parse the note block.
+QUESTION_NOTE_BLOCK = { QUESTION_NOTE_START ~ QUESTION_NOTE ~ QUESTION_NOTE_END? }
+
+/// The start of the question (`q:`).
+QUESTION_START  = { "q:" }
+
+/// The question text.
+QUESTION        = { (!QUESTION_NOTE_START ~ ANY)+ }
+
+/// The main rule for parsing the question header (question + note).
+QUESTION_HEADER = { QUESTION_START ~ QUESTION ~  QUESTION_NOTE_BLOCK? }
+
+
+
+// ====================== The start of the single choice poll header grammar. ======================
+// This grammar must parse the header of the single choice poll, examples:
+// 1. "p: The Question Text"
+// 2. "p: The Question Text (any new text)"
+// 3. "p: The Question Text?"
+// 4. "p: The Question Text ><!>>"
+
+/// The strat of the single choice poll header (`p:`).
+POLL_START      = { "p:" }
+
+/// The end of the single choice poll header (`\n` or `\r\n`).
+POLL_HEADER_END = { NEWLINE }
+
+/// The single choice poll question text.
+// POLL_QUESTION   = { (!POLL_HEADER_END ~ ANY)+ }
+POLL_QUESTION   = { ANY+ }
+
+/// The main rule for parsing the single choice poll header.
+POLL_HEADER     = { POLL_START ~ POLL_QUESTION }
+
+
+
+// ====================== The start of the multichoice poll header grammar. ======================
+// This grammar must parse the header of the multichoice poll, examples:
+// 1. "mcp: The Question Text"
+// 2. "mcp: The Question Text (any new text)"
+// 3. "mcp: The Question Text?"
+// 4. "mcp: The Question Text ><!>>"
+
+/// The strat of the multichoice poll header (`mcp:`).
+MCPOLL_START      = { "mcp:" }
+
+/// The end of the multichoice poll header (`\n` or `\r\n`).
+MCPOLL_HEADER_END = { NEWLINE }
+
+/// The multichoice poll question.
+MCPOLL_QUESTION   = { (!MCPOLL_HEADER_END ~ ANY)+ }
+
+/// The main rule for parsing the multichoice poll header.
+// MCPOLL_HEADER     = { MCPOLL_START ~ MCPOLL_QUESTION ~ MCPOLL_HEADER_END }
+MCPOLL_HEADER     = { MCPOLL_START ~ MCPOLL_QUESTION }
+
+
+
+// ====================== The start of the multichoice poll header grammar. ======================
+// This grammar must parse the options, examples:
+// 1. "\toption one&^"
+// 2. "\t*&option two"
+// 3. "\toption tree prineln!("")"
+// 4. "\tprineln!("") *"
+
+/// The start of the option (`\t`).
+OPTION_START = { " "+ | "\t" }
+
+/// The option text.
+OPTION_TEXT  = { ANY+ }
+
+/// The main rule for parsing the option.
+OPTION       = { OPTION_START ~ OPTION_TEXT }
+
+
+
+// ====================== The start of the message block grammar. ======================
+// This grammar must parse the message start and end, examples:
+// 1. "m:("
+// 2. "):endm"
+
+/// The end of the message header (`\n` or `\r\n`).
+MESSAGE_HEADER_END = { NEWLINE }
+
+/// The start of the message block (`m:(\n` or `m:(\r\n`).
+// MESSAGE_SATRT      = { "m:(" ~ MESSAGE_HEADER_END }
+MESSAGE_SATRT      = { "m:(" }
+
+/// The end of the message block (`):endm\n`, `):endm\r\n` or `):endm\0`).
+// MESSAGE_END        = { "):endm" ~ (EOI | NEWLINE)}
+MESSAGE_END        = { "):endm" }
+
+
+
+// ====================== The start of the config block grammar. ======================
+// This grammar must parse the config block, examples:
+// 1. "config:\n\tcount = 90"
+// 2. "config:\r\n\tcount = 0"
+
+/// The start of config block (`config:\n` or `config:\r\n`).
+CONFIG_START   = { "config:" }
+
+/// The config feature name.
+CONFIG_FEATURE = { (!"=" ~ ANY)+ }
+
+/// The config feature value.
+CONFIG_VALUE   = { (!NEWLINE ~ ANY)+ }
+
+/// The main rule for parsing config block.
+CONFIG_OPSION  = { OPTION_START ~ CONFIG_FEATURE ~ "=" ~ CONFIG_VALUE }
