@@ -16,7 +16,7 @@ pub fn main(command: &ArgMatches) {
     } else if file_state == file::FileState::NotMcqpFile {
         logger.error("File type is NOT .mcq!");
     }
-    let mut abstraction_tree = parser::McqpList::new(
+    let mut abstraction_tree = parser::McqpAST::new(
         std::path::PathBuf::new().join(file)
     );
     abstraction_tree.parse();

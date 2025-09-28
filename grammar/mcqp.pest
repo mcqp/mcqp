@@ -130,11 +130,11 @@ MESSAGE_END        = { "):endm" }
 /// The start of config block (`config:\n` or `config:\r\n`).
 CONFIG_START   = { "config:" }
 
-/// The config feature name.
-CONFIG_FEATURE = { (!"=" ~ ANY)+ }
+/// The configs values.
+CONFIG_COUNTER_VALUE = { ('0'..'9')+ }
 
-/// The config feature value.
-CONFIG_VALUE   = { (!NEWLINE ~ ANY)+ }
+/// The configs options.
+CONFIG_COUNTER = { OPTION_START ~ ^"counter" ~ "=" ~ CONFIG_COUNTER_VALUE }
 
 /// The main rule for parsing config block.
-CONFIG_OPSION  = { OPTION_START ~ CONFIG_FEATURE ~ "=" ~ CONFIG_VALUE }
+CONFIG_OPSION = { CONFIG_COUNTER }

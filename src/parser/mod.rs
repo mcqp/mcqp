@@ -4,6 +4,7 @@
 // The sections parsers.
 mod poll_parser;
 mod question_parser;
+mod config_parser;
 
 // 3-party packages
 use pest::Parser;
@@ -11,7 +12,6 @@ use pest_derive::Parser;
 
 // The MCQP modules
 use crate::sections::{
-    config::Config,
     message::Message
 };
 use crate::file::FileReader;
@@ -40,6 +40,10 @@ pub struct Mcqp {
     /// The message information.
     pub message: Option<Message>
 }
+
+#[derive(Parser)]
+#[grammar = "grammar/mcqp.pest"]
+struct MCQPParser;
 
 /// The .mcq sections tree list.
 /// 
@@ -70,7 +74,7 @@ pub struct Mcqp {
 ///     ]
 /// }
 /// ```
-pub struct McqpList {
+pub struct McqpAST {
     /// The number of polls in the list.
     pub poll_count: u16,
     /// The number of questions in the list.
@@ -80,23 +84,19 @@ pub struct McqpList {
     /// The list of polls, questions and messages.
     pub mcqps: Vec<Mcqp>,
     /// The MCQP features.
-    pub config: Config,
+    pub config: config_parser::Config,
     /// The file reader.
     file_reader: FileReader
 }
 
-#[derive(Parser)]
-#[grammar = "grammar/mcqp.pest"]
-struct MCQPParser;
-
-impl McqpList {
+impl McqpAST {
     pub fn new(file_path: std::path::PathBuf) -> Self {
-        return McqpList { 
+        return McqpAST { 
             poll_count: 0, 
             question_count: 0, 
             message_count: 0, 
             mcqps: Vec::new(),
-            config: Config::new(),
+            config: config_parser::Config::new(),
             file_reader: FileReader::new(file_path)
         };
     }
@@ -119,6 +119,15 @@ impl McqpList {
 
             // Parse the Multichoice Poll section.
             else if MCQPParser::parse(Rule::MCPOLL_START, line).is_ok() { self.parse_poll(line, true); }
+
+            // Parse the Config section.
+            else if MCQPParser::parse(Rule::CONFIG_START, line).is_ok() { self.parse_config(); }
+
+            // Parse the Message block.
+            else if MCQPParser::parse(Rule::MESSAGE_SATRT, line).is_ok() { todo!("Parse the message!!"); }
+
+            // Parse any unknown keyword.
+            else { todo!("Error with line and point to the line.") }
         }
     }
 
@@ -128,12 +137,12 @@ impl McqpList {
             if is_mcpoll { Rule::MCPOLL_HEADER } else { Rule::POLL_HEADER },
             line
         );
-        if let Ok(poll_header_abt) = poll_header_result {
+        if let Ok(poll_header_ast) = poll_header_result {
             let mut poll = poll_parser::Poll::new();
-            poll.parse_header(poll_header_abt);
+            poll.parse_header(poll_header_ast);
             while let Some(line) = &self.file_reader.next_line() {
-                if let Ok(option_abt) = MCQPParser::parse(Rule::OPTION, line) {
-                    poll.parse_option(option_abt);
+                if let Ok(option_ast) = MCQPParser::parse(Rule::OPTION, line) {
+                    poll.parse_option(option_ast);
                     if !poll.is_last_option_valid() {
                         // TODO: Error with line and point to the line.
                         todo!("Error with line and point to the line.");
@@ -169,12 +178,12 @@ impl McqpList {
     /// The Question header and the Question options parser. 
     fn parse_question(&mut self, line: &str) {
         let question_header_result = MCQPParser::parse(Rule::QUESTION_HEADER, line);
-        if let Ok(question_header_abt) = question_header_result {
+        if let Ok(question_header_ast) = question_header_result {
             let mut question = question_parser::Question::new();
-            question.parse_header(question_header_abt);
+            question.parse_header(question_header_ast);
             while let Some(line) = &self.file_reader.next_line() {
-                if let Ok(option_abt) = MCQPParser::parse(Rule::OPTION, line) {
-                    question.parse_option(option_abt);
+                if let Ok(option_ast) = MCQPParser::parse(Rule::OPTION, line) {
+                    question.parse_option(option_ast);
                     if !question.is_last_option_valid() {
                         // TODO: Error with line and point to the line.
                         todo!("Error with line and point to the line.");
@@ -200,5 +209,21 @@ impl McqpList {
             // TODO: format the error.
             todo!("format the error.");
         }
+    }
+
+    /// The Config parser.
+    fn parse_config(&mut self) {
+        while let Some(line) = &self.file_reader.next_line() {
+            let config_ast_result = MCQPParser::parse(Rule::CONFIG_OPSION, line);
+            if let Ok(config_ast) = config_ast_result {
+                self.config.parse(config_ast);
+            } else if let Err(error) = config_ast_result {
+                // TODO: Error with line and point to the line.
+                println!("{:#?}", error);
+                todo!("Error with line and point to the line.");
+                // TODO: If error is not for the config, break the loop.
+            }
+        }
+        self.file_reader.back_to_previous();
     }
 }
