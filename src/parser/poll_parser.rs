@@ -23,8 +23,8 @@ impl Poll {
     }
 
     /// Parse the poll header.
-    pub fn parse_header(&mut self, poll_header_abt: Pairs<'_, Rule>) {
-        poll_header_abt 
+    pub fn parse_header(&mut self, poll_header_ast: Pairs<'_, Rule>) {
+        poll_header_ast 
             .into_iter()
             .filter( |pair| pair.as_rule() == Rule::POLL_HEADER )
             .flat_map( |pair| pair.into_inner() )
@@ -36,8 +36,8 @@ impl Poll {
     }
 
     /// Parse the poll option.
-    pub fn parse_option(&mut self, option_abt: Pairs<'_, Rule>) {
-        option_abt
+    pub fn parse_option(&mut self, option_ast: Pairs<'_, Rule>) {
+        option_ast
             .into_iter()
             .filter( |pair| pair.as_rule() == Rule::OPTION )
             .flat_map( |pair| pair.into_inner() )

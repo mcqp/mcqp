@@ -27,8 +27,8 @@ impl Question {
     }
 
     /// Parse the question header.
-    pub fn parse_header(&mut self, question_header_abt: Pairs<'_, Rule>) {
-        question_header_abt
+    pub fn parse_header(&mut self, question_header_ast: Pairs<'_, Rule>) {
+        question_header_ast
             .into_iter()
             .filter( |pair| pair.as_rule() == Rule::QUESTION_HEADER)
             .flat_map( |pair| pair.into_inner() )
@@ -51,8 +51,8 @@ impl Question {
     }
 
     /// Parse the question option.
-    pub fn parse_option(&mut self, option_abt: Pairs<'_, Rule>) {
-        option_abt
+    pub fn parse_option(&mut self, option_ast: Pairs<'_, Rule>) {
+        option_ast
             .into_iter()
             .filter( |pair| pair.as_rule() == Rule::OPTION )
             .flat_map( |pair| pair.into_inner() )

@@ -33,7 +33,7 @@ struct PollDto {
 }
 
 /// Send .mcq abstraction tree to telegram.
-async fn send(abstraction_tree: parser::McqpList, send_config: config::Config) {
+async fn send(abstraction_tree: parser::McqpAST, send_config: config::Config) {
     let poll_api_url = format!("https://api.telegram.org/bot{}/sendpoll", send_config.bot_token);
     let message_api_url = format!("https://api.telegram.org/bot{}/sendMessage", send_config.bot_token);
     let logger = Log::new("sender");
@@ -149,7 +149,7 @@ pub async fn main(command: &ArgMatches) {
     } else if file_state == file::FileState::NotMcqpFile {
         logger.error("File type is NOT .mcq!");
     }
-    let mut abstraction_tree = parser::McqpList::new(
+    let mut abstraction_tree = parser::McqpAST::new(
         std::path::PathBuf::new().join(file)
     );
     abstraction_tree.parse();
