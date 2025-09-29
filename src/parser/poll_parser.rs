@@ -26,9 +26,15 @@ impl Poll {
     pub fn parse_header(&mut self, poll_header_ast: Pairs<'_, Rule>) {
         poll_header_ast 
             .into_iter()
-            .filter( |pair| pair.as_rule() == Rule::POLL_HEADER )
+            .filter( |pair| 
+                pair.as_rule() == Rule::POLL_HEADER ||
+                pair.as_rule() == Rule::MCPOLL_HEADER
+            )
             .flat_map( |pair| pair.into_inner() )
-            .filter( |inner_pair| inner_pair.as_rule() == Rule::POLL_QUESTION )
+            .filter( |inner_pair| 
+                inner_pair.as_rule() == Rule::POLL_QUESTION || 
+                inner_pair.as_rule() == Rule::MCPOLL_QUESTION
+            )
             .take(1)
             .for_each( |inner_pair| {
                 self.p = inner_pair.as_span().as_str().to_string();
