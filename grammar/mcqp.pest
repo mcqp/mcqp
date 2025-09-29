@@ -80,14 +80,10 @@ POLL_HEADER     = { POLL_START ~ POLL_QUESTION }
 /// The strat of the multichoice poll header (`mcp:`).
 MCPOLL_START      = { "mcp:" }
 
-/// The end of the multichoice poll header (`\n` or `\r\n`).
-MCPOLL_HEADER_END = { NEWLINE }
-
 /// The multichoice poll question.
-MCPOLL_QUESTION   = { (!MCPOLL_HEADER_END ~ ANY)+ }
+MCPOLL_QUESTION   = { ANY+ }
 
 /// The main rule for parsing the multichoice poll header.
-// MCPOLL_HEADER     = { MCPOLL_START ~ MCPOLL_QUESTION ~ MCPOLL_HEADER_END }
 MCPOLL_HEADER     = { MCPOLL_START ~ MCPOLL_QUESTION }
 
 

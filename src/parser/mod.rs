@@ -339,6 +339,10 @@ impl McqpAST {
                 );
                 self.exit();
             }
+            if self.config.counter.0 {
+                question.q = format!("[{}] {}", self.config.counter.1, question.q);
+                self.config.counter.1 += 1;
+            }
             self.question_count += 1;
             self.mcqps.push(Mcqp { 
                 _type: McqpType::Question, 
