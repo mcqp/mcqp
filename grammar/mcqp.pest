@@ -135,11 +135,14 @@ MESSAGE_END        = { "):endm" }
 
 /// The start of config block (`config:\n` or `config:\r\n`).
 CONFIG_START         = { "config:" }
+
+/// The start of the config feature.
 CONFIG_FEATURE_START = { " "+ | "\t" }
 
 /// The configs values.
 CONFIG_COUNTER_VALUE = { ('0'..'9')+ }
 
+/// The counter feature name.
 CONFIG_COUNTER_NAME = { ^"counter" }
 
 /// The configs options.
