@@ -86,10 +86,38 @@ impl Question {
         return false;
     }
 
-    /// Check the number of opctions and if there answer.
+    /// Check the number of opctions and if there an answer.
     pub fn is_options_valid(&self) -> bool {
         if self.choices.len() < 1 || self.choices.len() > 10  || self.answer == -1 {
             return false;
+        }
+        return true;
+    }
+
+    /// Check the length of the question.
+    pub fn is_question_valid(&self) -> bool {
+        let question_len = self.q.chars().count();
+        if question_len < 1 || question_len > 255 {
+            return false;
+        }
+        return true;
+    }
+
+    /// Check if there is note.
+    pub fn is_note(&self) -> bool {
+        if self.note.is_some() {
+            return true;
+        }
+        return false;
+    }
+
+    /// Check the note length.
+    pub fn is_note_valid(&self) -> bool {
+        if let Some(note) = &self.note {
+            let note_len = note.chars().count();
+            if note_len < 1 || note_len > 200 {
+                return false;
+            }
         }
         return true;
     }

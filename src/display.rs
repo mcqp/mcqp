@@ -6,7 +6,6 @@ use colored::Colorize;
 use crate::config::{BotResult, Message};
 
 pub struct Display;
-
 impl Display {
     /// Display the bot information.
     pub fn bot_info(info: BotResult) {
@@ -28,5 +27,113 @@ impl Display {
             message.text.green(),
             message.chat._type.green()
         )
+    }
+}
+
+pub struct DisplaySyntaxError;
+impl DisplaySyntaxError {
+    
+    /// Display the syntax error.
+    /// 
+    /// ## Example:
+    /// ```
+    /// DisplaySyntaxError::error(
+    ///     "Unknown keyword.",
+    ///     "Expected a section keyword found unknown keyword",
+    ///     &PathBuf::new().join("test.mcq"),
+    ///     "the line text.",
+    ///     3,
+    ///     0
+    /// );
+    /// ```
+    pub fn error(
+        msg: &str, 
+        position_msg: &str, 
+        file_path: &std::path::PathBuf, 
+        line: &str, 
+        line_number: usize, 
+        position: usize
+    ) {
+        let line_number_width = line_number.to_string().len();
+        let position_error_msg = " ".repeat(position) + "^ " + position_msg;
+        println!(
+            "{}: {}",
+            "ERROR".red(),
+            msg
+        );
+        println!(
+            " {:line_number_width$} {} {}:{}:{}",
+            "",
+            "-->".cyan(),
+            file_path.display(),
+            line_number,
+            position
+        );
+        println!(
+            " {:line_number_width$} {}", 
+            "",
+            "|".cyan()
+        );
+        println!(
+            " {:>line_number_width$} {} {}",
+            line_number.to_string().cyan(), 
+            "|".cyan(),
+            line
+        );
+        println!(
+            " {:line_number_width$} {} {}", 
+            "",
+            "|".cyan(),
+            position_error_msg.red()
+        );
+        println!("");
+    }
+
+    /// Display the error fix using the add-on.
+    /// 
+    /// ## Example:
+    /// ```
+    /// DisplaySyntaxError::fix_add(
+    ///     "Add '//' to the front of the line.",
+    ///     "the line text.",
+    ///     "//",
+    ///     3,
+    ///     0
+    /// ); // it will make the line like this "//the line text."
+    /// ```
+    pub fn fix_add(
+        msg: &str,
+        line: &str,
+        add: &str,
+        line_number: usize,
+        position: usize
+    ) {
+        let line_number_width = line_number.to_string().len();
+        let plus_with_position = format!("{}{}", " ".repeat(position),"+".repeat(add.chars().count()));
+        let mut new_line = line.to_string();
+        new_line.insert_str(position, add);
+        println!(
+            "{}: {}",
+            "FIX".green(),
+            msg
+        );
+        println!(
+            " {:line_number_width$} {}", 
+            "",
+            "|".cyan()
+        );
+        println!(
+            " {:>line_number_width$} {} {}",
+            line_number.to_string().cyan(), 
+            "|".cyan(),
+            new_line
+        );
+        println!(
+            " {:line_number_width$} {} {}", 
+            "",
+            "|".cyan(),
+            plus_with_position.green()
+        );
+        println!("");
     }
 }

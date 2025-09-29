@@ -66,4 +66,13 @@ impl Poll {
         }
         return true;
     }
+
+    /// Check the poll question length.
+    pub fn is_question_valid(&self) -> bool {
+        let question_len = self.p.chars().count();
+        if question_len < 1 || question_len > 255 {
+            return false;
+        }
+        return true;
+    }
 }
