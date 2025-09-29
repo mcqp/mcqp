@@ -6,10 +6,16 @@
 WHITESPACE = _{ " " | "\t" }
 
 /// The main rule for parsing the comment (`\t// text`, `   \t// text\n` or `\t// text\r\n`).
-COMMENT = { WHITESPACE* ~ "//" ~ ANY* }
+COMMENT = _{ WHITESPACE* ~ "//" ~ ANY* }
 
 /// The main rule for parsing the empty line (` \n` or `\t\t\r\n`).
 EMPTY_LINE = { WHITESPACE* ~ (EOI | NEWLINE) }
+
+
+// ====================== The start of the tokens. ======================
+
+/// The assignment operator.
+ASSIGNMENT = { "=" }
 
 
 // ====================== The start of the question header grammar. ======================
@@ -128,13 +134,16 @@ MESSAGE_END        = { "):endm" }
 // 2. "config:\r\n\tcount = 0"
 
 /// The start of config block (`config:\n` or `config:\r\n`).
-CONFIG_START   = { "config:" }
+CONFIG_START         = { "config:" }
+CONFIG_FEATURE_START = { " "+ | "\t" }
 
 /// The configs values.
 CONFIG_COUNTER_VALUE = { ('0'..'9')+ }
 
+CONFIG_COUNTER_NAME = { ^"counter" }
+
 /// The configs options.
-CONFIG_COUNTER = { OPTION_START ~ ^"counter" ~ "=" ~ CONFIG_COUNTER_VALUE }
+CONFIG_COUNTER = { CONFIG_FEATURE_START ~ CONFIG_COUNTER_NAME ~ ASSIGNMENT ~ CONFIG_COUNTER_VALUE }
 
 /// The main rule for parsing config block.
 CONFIG_OPSION = { CONFIG_COUNTER }
