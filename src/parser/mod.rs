@@ -5,6 +5,7 @@
 mod poll_parser;
 mod question_parser;
 mod config_parser;
+mod message_parser;
 
 // 3-party packages
 use pest::Parser;
@@ -15,9 +16,6 @@ use pest::error::{
 };
 
 // The MCQP modules
-use crate::sections::{
-    message::Message
-};
 use crate::file::FileReader;
 use crate::display::DisplaySyntaxError;
 use crate::log::Log;
@@ -44,7 +42,7 @@ pub struct Mcqp {
     /// The question information.
     pub question: Option<question_parser::Question>,
     /// The message information.
-    pub message: Option<Message>
+    pub message: Option<message_parser::Message>
 }
 
 #[derive(Parser)]
@@ -153,7 +151,7 @@ impl McqpAST {
 
             // Parse the Message block.
             else if MCQPParser::parse(Rule::MESSAGE_SATRT, line).is_ok() { 
-                todo!("Parse the message!!"); 
+                self.parse_message(&line, self.file_reader.get_line_number());
             }
 
             // Parse any unknown keyword.
@@ -239,6 +237,7 @@ impl McqpAST {
                 self.config.counter.1 += 1;
             }
             self.poll_count += 1;
+            poll.is_mcp = is_mcpoll;
             self.mcqps.push(Mcqp {
                 _type: if is_mcpoll { McqpType::MCPoll } else { McqpType::Poll },
                 poll: Some(poll),
@@ -462,6 +461,37 @@ impl McqpAST {
             break;
         }
         self.file_reader.back_to_previous();
+    }
+
+    /// The Message parser.
+    fn parse_message(&mut self, message_line: &str, message_line_number: usize) {
+        let mut msg = String::new();
+        while let Some(line) = &self.file_reader.next_line() {
+            if MCQPParser::parse(Rule::MESSAGE_END, line).is_ok() {
+                break;
+            }
+            msg += &format!("{}\n", line);
+        }
+        let mut message = message_parser::Message::new();
+        message.parse(msg);
+        if !message.is_valid() {
+            DisplaySyntaxError::error(
+                "Found message block but there is no message!", 
+                "There is no message", 
+                &self.file_path, 
+                message_line, 
+                message_line_number, 
+                0
+            );
+            self.exit();
+        }
+        self.mcqps.push(Mcqp { 
+            _type: McqpType::Message, 
+            poll: None, 
+            question: None, 
+            message: Some(message)
+        });
+        self.message_count += 1;
     }
 
     /// Exit the program with `can not parse the file` error.
