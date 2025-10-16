@@ -22,7 +22,6 @@ mod command;
 mod matches;
 mod send;
 mod file;
-mod sections;
 mod parser;
 mod log;
 mod config;

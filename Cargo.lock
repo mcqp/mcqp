@@ -754,6 +754,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "telemark",
  "tokio",
 ]
 
@@ -1343,6 +1344,11 @@ dependencies = [
  "core-foundation-sys",
  "libc",
 ]
+
+[[package]]
+name = "telemark"
+version = "0.1.0"
+source = "git+https://github.com/mcqp/telemark.git?branch=master#c65bb671a2cf5ff77dbc94beb2fdb52662037aba"
 
 [[package]]
 name = "tempfile"
