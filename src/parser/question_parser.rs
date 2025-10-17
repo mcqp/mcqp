@@ -113,7 +113,7 @@ impl Question {
 
     /// Check the number of opctions and if there an answer.
     pub fn is_options_valid(&self) -> bool {
-        if self.choices.len() < 1 || self.choices.len() > 10  || self.answer == -1 {
+        if self.choices.len() < 2 || self.choices.len() > 10  || self.answer == -1 {
             return false;
         }
         return true;

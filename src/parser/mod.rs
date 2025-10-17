@@ -233,8 +233,8 @@ impl McqpAST {
             self.file_reader.back_to_previous();
             if !poll.is_options_valid() {
                 DisplaySyntaxError::error(
-                    "The number of the poll options is not between 1 to 10 option.", 
-                    &format!("Expected 1 to 10 options, found {} option.", poll.choices_len()), 
+                    "The number of the poll options is not between 2 to 10 option.", 
+                    &format!("Expected 2 to 10 options, found {} option.", poll.choices_len()), 
                     &self.file_path, 
                     header_line, 
                     header_line_number, 
@@ -324,6 +324,7 @@ impl McqpAST {
                     self.exit();
                 }
             }
+            // Parsing the opstions.
             while let Some(line) = &self.file_reader.next_line() {
                 if let Ok(option_ast) = MCQPParser::parse(Rule::OPTION, line) {
                     question.parse_option(option_ast);
@@ -348,8 +349,8 @@ impl McqpAST {
             self.file_reader.back_to_previous();
             if !question.is_options_valid() {
                 DisplaySyntaxError::error(
-                    "The number of the question options is not between 1 to 10 option or there is no correct answer.", 
-                    "Expected 1 to 10 options and a correct answer.", 
+                    "The number of the question options is not between 2 to 10 option or there is no correct answer.", 
+                    "Expected 2 to 10 options and a correct answer.", 
                     &self.file_path, 
                     header_line, 
                     header_line_number, 
