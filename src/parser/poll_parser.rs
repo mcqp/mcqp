@@ -79,7 +79,7 @@ impl Poll {
 
     /// Check the number of opctions.
     pub fn is_options_valid(&self) -> bool {
-        if self.choices.len() < 1 || self.choices.len() > 10 {
+        if self.choices.len() < 2 || self.choices.len() > 10 {
             return false;
         }
         return true;
