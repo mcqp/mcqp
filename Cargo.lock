@@ -1348,7 +1348,7 @@ dependencies = [
 [[package]]
 name = "telemark"
 version = "0.1.0"
-source = "git+https://github.com/mcqp/telemark.git?branch=master#c65bb671a2cf5ff77dbc94beb2fdb52662037aba"
+source = "git+https://github.com/mcqp/telemark.git?tag=v0.1.0#ae30d04a9b755eed26d6edad094d0b2d3591686f"
 
 [[package]]
 name = "tempfile"
