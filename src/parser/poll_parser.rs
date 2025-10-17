@@ -6,20 +6,32 @@ use super::Rule;
 
 pub struct Poll {
     /// The poll question
-    pub p: String,
+    question: String,
     /// The poll choices
-    pub choices: Vec<String>,
-    /// Is the poll multiple choice
-    pub is_mcp: bool
+    choices: Vec<String>
 }
 
 impl Poll {
-    pub fn new() -> Poll {
-        return Poll {
-            p: String::new(),
-            choices: Vec::new(),
-            is_mcp: false
+    pub fn new() -> Self {
+        return Self {
+            question: String::new(),
+            choices: Vec::new()
         }
+    }
+
+    /// Return a cloned question.
+    pub fn question(&self) -> String {
+        return self.question.clone();
+    }
+
+    /// Return a cloned choices.
+    pub fn choices(&self) -> Vec<String> {
+        return self.choices.clone();
+    }
+
+    /// Return the choices length.
+    pub fn choices_len(&self) -> usize {
+        return self.choices.len();
     }
 
     /// Parse the poll header.
@@ -37,7 +49,7 @@ impl Poll {
             )
             .take(1)
             .for_each( |inner_pair| {
-                self.p = inner_pair.as_span().as_str().to_string();
+                self.question = inner_pair.as_span().as_str().to_string();
             });
     }
 
@@ -75,10 +87,21 @@ impl Poll {
 
     /// Check the poll question length.
     pub fn is_question_valid(&self) -> bool {
-        let question_len = self.p.chars().count();
+        let question_len = self.question.chars().count();
         if question_len < 1 || question_len > 255 {
             return false;
         }
+        return true;
+    }
+
+    /// Add a counter to the question. It will return `false` if 
+    /// the question length so big.
+    pub fn add_count(&mut self, counter: usize) -> bool {
+        let new_question = format!("{} {}", counter, self.question);
+        if new_question.chars().count() > 255 {
+            return false;
+        }
+        self.question = new_question;
         return true;
     }
 }

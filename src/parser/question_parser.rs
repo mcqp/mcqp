@@ -6,24 +6,49 @@ use super::Rule;
 
 pub struct Question {
     /// The question string
-    pub q: String,
+    question: String,
     /// The choices list
-    pub choices: Vec<String>,
+    choices: Vec<String>,
     /// The correct cohice index
-    pub answer: i8,
+    answer: i8,
     /// The question note
-    pub note: Option<String>,
+    note: Option<String>,
 }
 
 
 impl Question {
-    pub fn new() -> Question {
-        return Question {
-            q: String::new(),
+    pub fn new() -> Self {
+        return Self {
+            question: String::new(),
             choices: Vec::new(),
             answer: -1,
             note: None
         };
+    }
+
+    /// Return a cloned question.
+    pub fn question(&self) -> String {
+        return self.question.clone();
+    }
+
+    /// Return the question length.
+    pub fn question_len(&self) -> usize {
+        return self.question.chars().count();
+    }
+
+    /// Return a cloned choices.
+    pub fn choices(&self) -> Vec<String> {
+        return self.choices.clone();
+    }
+
+    /// Return the answer.
+    pub fn answer(&self) -> i8 {
+        return self.answer;
+    }
+
+    /// Return a option of cloned note.
+    pub fn note(&self) -> Option<String> {
+        return self.note.clone();
     }
 
     /// Parse the question header.
@@ -35,7 +60,7 @@ impl Question {
             .for_each( |inner_pair| {
                 // Parse the questoin.
                 if inner_pair.as_rule() == Rule::QUESTION {
-                    self.q = inner_pair.as_str().to_string();
+                    self.question = inner_pair.as_str().to_string();
                 } 
                 // Parse the Note block.
                 else if inner_pair.as_rule() == Rule::QUESTION_NOTE_BLOCK {
@@ -96,7 +121,7 @@ impl Question {
 
     /// Check the length of the question.
     pub fn is_question_valid(&self) -> bool {
-        let question_len = self.q.chars().count();
+        let question_len = self.question_len();
         if question_len < 1 || question_len > 255 {
             return false;
         }
@@ -119,6 +144,17 @@ impl Question {
                 return false;
             }
         }
+        return true;
+    }
+
+    /// Add a counter to the question. It will return `false` if 
+    /// the question length so big.
+    pub fn add_count(&mut self, counter: usize) -> bool {
+        let new_question = format!("{} {}", counter, self.question);
+        if new_question.chars().count() > 255 {
+            return false;
+        }
+        self.question = new_question;
         return true;
     }
 }
