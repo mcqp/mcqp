@@ -110,6 +110,7 @@ impl McqpAST {
 
     /// The main point of the MCQP parser.
     pub fn parse(&mut self) {
+        let logger = Log::new("parser");
         while let Some(line) = &self.file_reader.next_line() {
 
             // Parse the comment.
@@ -174,6 +175,14 @@ impl McqpAST {
                 self.exit();
             }
         }
+        logger.info(
+            &format!(
+                "found {}/poll and {}/question and {}/message", 
+                self.poll_count,
+                self.question_count,
+                self.message_count
+            )
+        );
     }
 
     /// The Poll header and the Poll options parser.
@@ -190,7 +199,7 @@ impl McqpAST {
                     "The poll question length is not between 1 to 255 characher.", 
                     &format!(
                         "Expected poll question to be between 1 to 255 characher, found {} characher.", 
-                        poll.p.chars().count()
+                        poll.question().chars().count()
                     ), 
                     &self.file_path, 
                     header_line, 
@@ -199,6 +208,7 @@ impl McqpAST {
                 );
                 self.exit();
             }
+            // Parsing the opstions.
             while let Some(line) = &self.file_reader.next_line() {
                 if let Ok(option_ast) = MCQPParser::parse(Rule::OPTION, line) {
                     poll.parse_option(option_ast);
@@ -224,7 +234,7 @@ impl McqpAST {
             if !poll.is_options_valid() {
                 DisplaySyntaxError::error(
                     "The number of the poll options is not between 1 to 10 option.", 
-                    &format!("Expected 1 to 10 options, found {} option.", poll.choices.len()), 
+                    &format!("Expected 1 to 10 options, found {} option.", poll.choices_len()), 
                     &self.file_path, 
                     header_line, 
                     header_line_number, 
@@ -233,11 +243,20 @@ impl McqpAST {
                 self.exit();
             }
             if self.config.counter.0 {
-                poll.p = format!("[{}] {}", self.config.counter.1, poll.p);
+                if !poll.add_count(self.config.counter.1) {
+                    DisplaySyntaxError::error(
+                        "You can not add counter.", 
+                        "The length of the question + counter exit 255.", 
+                        &self.file_path, 
+                        header_line, 
+                        header_line_number, 
+                        0
+                    );
+                    self.exit();
+                }
                 self.config.counter.1 += 1;
             }
             self.poll_count += 1;
-            poll.is_mcp = is_mcpoll;
             self.mcqps.push(Mcqp {
                 _type: if is_mcpoll { McqpType::MCPoll } else { McqpType::Poll },
                 poll: Some(poll),
@@ -280,10 +299,10 @@ impl McqpAST {
             question.parse_header(question_header_ast);
             if !question.is_question_valid() {
                 DisplaySyntaxError::error(
-                    "The poll question length is not between 1 to 255 characher.", 
+                    "The question length is not between 1 to 255 characher.", 
                     &format!(
-                        "Expected poll question to be between 1 to 255 characher, found {} characher.", 
-                        question.q.chars().count()
+                        "Expected question to be between 1 to 255 characher, found {} characher.", 
+                        question.question_len()
                     ), 
                     &self.file_path, 
                     header_line, 
@@ -339,7 +358,17 @@ impl McqpAST {
                 self.exit();
             }
             if self.config.counter.0 {
-                question.q = format!("[{}] {}", self.config.counter.1, question.q);
+                if !question.add_count(self.config.counter.1) {
+                    DisplaySyntaxError::error(
+                        "You can not add counter.", 
+                        "The length of the question + counter exit 255.", 
+                        &self.file_path, 
+                        header_line, 
+                        header_line_number, 
+                        0
+                    );
+                    self.exit();
+                }
                 self.config.counter.1 += 1;
             }
             self.question_count += 1;

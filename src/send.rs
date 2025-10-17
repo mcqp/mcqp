@@ -65,8 +65,8 @@ async fn send(abstraction_tree: parser::McqpAST, send_config: config::Config) {
                 let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
                         chat_id: send_config.chat_id.clone(),
-                        question: poll.p,
-                        options: poll.choices,
+                        question: poll.question(),
+                        options: poll.choices(),
                         is_anonymous: true,
                         _type: "regular".to_string(),
                         allows_multiple_answers: false,
@@ -90,8 +90,8 @@ async fn send(abstraction_tree: parser::McqpAST, send_config: config::Config) {
                 let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
                         chat_id: send_config.chat_id.clone(),
-                        question: poll.p,
-                        options: poll.choices,
+                        question: poll.question(),
+                        options: poll.choices(),
                         is_anonymous: true,
                         _type: "regular".to_string(),
                         allows_multiple_answers: true,
@@ -115,13 +115,13 @@ async fn send(abstraction_tree: parser::McqpAST, send_config: config::Config) {
                 let res_ruslt = client.post(poll_api_url.clone())
                     .json(&PollDto {
                         chat_id: send_config.chat_id.clone(),
-                        question: question.q,
-                        options: question.choices,
+                        question: question.question(),
+                        options: question.choices(),
                         is_anonymous: true,
                         _type: "quiz".to_string(),
                         allows_multiple_answers: false,
-                        correct_option_id: question.answer as usize,
-                        explanation: question.note.unwrap_or("".to_string())
+                        correct_option_id: question.answer() as usize,
+                        explanation: question.note().unwrap_or("".to_string())
                     })
                     .send()
                     .await;
