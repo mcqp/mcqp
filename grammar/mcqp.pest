@@ -115,11 +115,9 @@ OPTION       = { OPTION_START ~ OPTION_TEXT }
 MESSAGE_HEADER_END = { NEWLINE }
 
 /// The start of the message block (`m:(\n` or `m:(\r\n`).
-// MESSAGE_SATRT      = { "m:(" ~ MESSAGE_HEADER_END }
 MESSAGE_SATRT      = { "m:(" }
 
 /// The end of the message block (`):endm\n`, `):endm\r\n` or `):endm\0`).
-// MESSAGE_END        = { "):endm" ~ (EOI | NEWLINE)}
 MESSAGE_END        = { "):endm" }
 
 
@@ -135,14 +133,18 @@ CONFIG_START         = { "config:" }
 /// The start of the config feature.
 CONFIG_FEATURE_START = { " "+ | "\t" }
 
-/// The configs values.
+/// The counter:
 CONFIG_COUNTER_VALUE = { ('0'..'9')+ }
+CONFIG_COUNTER_NAME  = { ^"counter" }
+CONFIG_COUNTER       = { CONFIG_FEATURE_START ~ CONFIG_COUNTER_NAME ~ ASSIGNMENT ~ CONFIG_COUNTER_VALUE }
 
-/// The counter feature name.
-CONFIG_COUNTER_NAME = { ^"counter" }
-
-/// The configs options.
-CONFIG_COUNTER = { CONFIG_FEATURE_START ~ CONFIG_COUNTER_NAME ~ ASSIGNMENT ~ CONFIG_COUNTER_VALUE }
+/// The md_err:
+CONFIG_MD_ERR_VALUE = { ^"true" | ^"false" }
+CONFIG_MD_ERR_NAME  = { ^"md_err" }
+CONFIG_MD_ERR       = { CONFIG_FEATURE_START ~ CONFIG_MD_ERR_NAME ~ ASSIGNMENT ~ CONFIG_MD_ERR_VALUE }
 
 /// The main rule for parsing config block.
-CONFIG_OPSION = { CONFIG_COUNTER }
+CONFIG_OPSION = { 
+    CONFIG_COUNTER 
+    | CONFIG_MD_ERR
+}

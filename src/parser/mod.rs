@@ -503,7 +503,42 @@ impl McqpAST {
             msg += &format!("{}\n", line);
         }
         let mut message = message_parser::Message::new();
-        message.parse(msg);
+        if self.config.md_err {
+            // To Display the Markdown error.
+            if let Err(err) = message.parse_with_result(msg.clone()) {
+                let mut li: usize = 0;
+                let mut position: usize = 0;
+                for (ci, c) in msg.chars().enumerate() {
+                    position += 1;
+                    if ci == err.offset() { break; }
+                    if c == '\n' {
+                        position = 0;
+                        li += 1;
+                    }
+                }
+                // Error line number.
+                let line_number = message_line_number + li + 1;
+                let err_line = msg.split('\n').collect::<Vec<&str>>()[li];
+                DisplaySyntaxError::error(
+                    "Markdown unclosed.", 
+                    "This must be escaped or closed.", 
+                    &self.file_path, 
+                    err_line,
+                    line_number, 
+                    position-1
+                );
+                DisplaySyntaxError::fix_add(
+                    "Escape the char to use it.", 
+                    err_line, 
+                    "\\", 
+                    line_number, 
+                    position-1
+                );
+                self.exit();
+            }
+        } else {
+            message.parse(msg);
+        }
         if !message.is_valid() {
             DisplaySyntaxError::error(
                 "Found message block but there is no message!", 

@@ -3,6 +3,7 @@
 
 use telemark::parser::mdv1;
 use telemark::parser::enums::MarkdownErrorType;
+use telemark::parser::types::MarkdownError;
 
 pub struct Message {
     /// The message body
@@ -26,6 +27,13 @@ impl Message {
                 MarkdownErrorType::UnderscoreOpen => self.m.push('_'),
             }
         }
+    }
+
+    /// Parse the message and throw the errors.
+    pub fn parse_with_result(&mut self, msg: String) -> Result<(), MarkdownError> {
+        mdv1::parser(&msg)?; // Throw the errors to the up level.
+        self.m = msg.clone().trim().to_string();
+        return Ok(());
     }
 
     /// Check the body length.
