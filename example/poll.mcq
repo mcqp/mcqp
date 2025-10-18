@@ -1,5 +1,4 @@
 // You can use `p:` to create the poll section.
-// Sections must be separated with new line.
 
 // A single choice poll
 p: How are you today?
@@ -14,4 +13,4 @@ p: What are you currently using?
     Go
     Python
     Java
-    JavaScrypt
+    Javascript
