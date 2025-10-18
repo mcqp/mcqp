@@ -1,9 +1,8 @@
 // You can use `q:` to create the question section.
-// The question note must be in the note block `<NOTE: >` and in the question line.
+// The question note must be in the note block `<NOTE: >` and in the end of the question line.
 // The note block start with `<NOTE:` and ends with `>`.
 // If the line ends with anything else except `>` or space will interpreted as a part of the question.
 // The `*` at the end of the option means that this is the correct option.
-// Sections must be separated with new line.
 
 // A question section
 q: How are you today? <NOTE: You must be amazing :)>

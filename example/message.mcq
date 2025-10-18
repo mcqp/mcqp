@@ -1,7 +1,6 @@
 // You can use `m:(` to create the message section.
 // You must use `):endm` to end the message section.
 // The interpretation will start after the `m:(` line.
-// Sections must be separated with new line.
 
 // The message section
 m:(
@@ -15,7 +14,6 @@ This is a message
 //      ` ` for copy text
 //      ``` ``` for code block
 //      [text](URL) for links
-// NOTE: The parser does not paser links []() well, be careful of that.
 m:(
 This is a *markdown* message
 

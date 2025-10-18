@@ -1,5 +1,4 @@
 // You can use `mcp:` to create the multiple choice poll section.
-// Sections must be separated with new line.
 
 // The multiple choice poll section
 mcp: How are you today?
@@ -14,4 +13,4 @@ mcp: What are you currently using?
     Go
     Python
     Java
-    JavaScrypt
+    Javascript

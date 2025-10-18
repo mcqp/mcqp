@@ -1,31 +1,37 @@
 // You can use `config:` to create the config section.
 // You need to add the config section in the header of the file.
 // If the config section add after some questions of poll sections will not configure them.
-// Sections must be separated with new line.
+// The config features:
+//      1. counter: insert counter in the poll/question header.
+//      2. md_err: enable the message markdown errors.
 
-// This will add the counter for all polls and questions after the config
+// This will add the counter for all polls and questions after the config,
+// And it will enable the message markdown errors.
 config:
     counter = 0
+    md_err = true
 
-// It will add the counter at the start of the question like this: `[0] How are you today?`
+// It will add the counter at the start of the question like this: `0 How are you today?`
 q: How are you today? <NOTE: You must be amazing :)>
     Amazing *
     Good
     Bad
     Horrible
 
-// This question will have the counter + 1 like this: `[1] How are you today?`
+// This question will have the counter + 1 like this: `1 How are you today?`
 q: How are you today? <NOTE: You must be amazing :)>
     Amazing *
     Good
     Bad
     Horrible
 
-// This will override the previous config section
+// This will override the previous config section,
+// And it will disable the message markdown errors.
 config:
     counter = 100
+    md_err = false
 
-// It will be like this: `[100] How are you today?`
+// It will be like this: `100 How are you today?`
 q: How are you today? <NOTE: You must be amazing :)>
     Amazing *
     Good

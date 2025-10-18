@@ -10,19 +10,18 @@ For more information see the [MCQP website](https://mcqp.github.io).
 
 ## Simple MCQP Syntax Example
 ```mcq
-// config the questions/polls counter to start from 1
+// config the questions/polls counter to start from 1,
+// And enable the markdown errors checks.
 config:
     counter = 1
+    md_err = true
 
-// NOTE: the \ in the end of the code block is just for the github markdown
-// to be display in the README.md file.
 m:(
-Hello world from .mcq file!
-```rs
-fn main() {
-  println!("Hello world");
-}
-\```
+This is a *markdown* message
+
+you can use this command to run the _checks_: `mcqp check ./example/message.mcq`
+
+you can download the new version of *mcqp* from [release page](https://github.com/mcqp/mcqp/releases)
 ):endm
 
 q: How are you today? <NOTE: You must be amazing 😁>
