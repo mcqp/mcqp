@@ -150,7 +150,7 @@ impl Question {
     /// Add a counter to the question. It will return `false` if 
     /// the question length so big.
     pub fn add_count(&mut self, counter: usize) -> bool {
-        let new_question = format!("{} {}", counter, self.question);
+        let new_question = format!("{}.{}", counter, self.question);
         if new_question.chars().count() > 255 {
             return false;
         }
