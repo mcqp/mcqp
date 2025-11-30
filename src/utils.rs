@@ -1,6 +1,7 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
+use std::io::Write;
 
 /// Read a string from standard input.
 /// 
@@ -14,7 +15,6 @@
 /// }
 /// ```
 pub fn input(message: &str) -> String {
-    use std::io::Write;
     print!("{}", message);
     std::io::stdout().flush().expect("Flush Error!");
     let mut line: String = String::new();
