@@ -19,12 +19,6 @@ ASSIGNMENT = { "=" }
 
 
 // ====================== The start of the question header grammar. ======================
-// This grammar must parse the header of the question, examples:
-// 1. "q: The Question Text <NOTE: The Note Text>"
-// 2. "q: The Question Text <> <NOTE: The Note Text>"
-// 3. "q: The Question Text <NOTE: The Note Text> will be avoided."
-// 4. "q: The Question Text"
-
 /// The start of the note block (`<NOTE:`).
 QUESTION_NOTE_START = { "<NOTE:" }
 
@@ -49,12 +43,6 @@ QUESTION_HEADER = { QUESTION_START ~ QUESTION ~  QUESTION_NOTE_BLOCK? }
 
 
 // ====================== The start of the single choice poll header grammar. ======================
-// This grammar must parse the header of the single choice poll, examples:
-// 1. "p: The Question Text"
-// 2. "p: The Question Text (any new text)"
-// 3. "p: The Question Text?"
-// 4. "p: The Question Text ><!>>"
-
 /// The strat of the single choice poll header (`p:`).
 POLL_START      = { "p:" }
 
@@ -71,12 +59,6 @@ POLL_HEADER     = { POLL_START ~ POLL_QUESTION }
 
 
 // ====================== The start of the multichoice poll header grammar. ======================
-// This grammar must parse the header of the multichoice poll, examples:
-// 1. "mcp: The Question Text"
-// 2. "mcp: The Question Text (any new text)"
-// 3. "mcp: The Question Text?"
-// 4. "mcp: The Question Text ><!>>"
-
 /// The strat of the multichoice poll header (`mcp:`).
 MCPOLL_START      = { "mcp:" }
 
@@ -89,12 +71,6 @@ MCPOLL_HEADER     = { MCPOLL_START ~ MCPOLL_QUESTION }
 
 
 // ====================== The start of the multichoice poll header grammar. ======================
-// This grammar must parse the options, examples:
-// 1. "\toption one&^"
-// 2. "\t*&option two"
-// 3. "\toption tree prineln!("")"
-// 4. "\tprineln!("") *"
-
 /// The start of the option (`\t`).
 OPTION_START = { " "+ | "\t" }
 
@@ -107,10 +83,6 @@ OPTION       = { OPTION_START ~ OPTION_TEXT }
 
 
 // ====================== The start of the message block grammar. ======================
-// This grammar must parse the message start and end, examples:
-// 1. "m:("
-// 2. "):endm"
-
 /// The end of the message header (`\n` or `\r\n`).
 MESSAGE_HEADER_END = { NEWLINE }
 
@@ -123,10 +95,6 @@ MESSAGE_END        = { "):endm" }
 
 
 // ====================== The start of the config block grammar. ======================
-// This grammar must parse the config block, examples:
-// 1. "config:\n\tcount = 90"
-// 2. "config:\r\n\tcount = 0"
-
 /// The start of config block (`config:\n` or `config:\r\n`).
 CONFIG_START         = { "config:" }
 
@@ -144,7 +112,7 @@ CONFIG_MD_ERR_NAME  = { ^"md_err" }
 CONFIG_MD_ERR       = { CONFIG_FEATURE_START ~ CONFIG_MD_ERR_NAME ~ ASSIGNMENT ~ CONFIG_MD_ERR_VALUE }
 
 /// The main rule for parsing config block.
-CONFIG_OPSION = { 
-    CONFIG_COUNTER 
+CONFIG_OPSION = {
+    CONFIG_COUNTER
     | CONFIG_MD_ERR
 }

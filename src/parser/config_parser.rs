@@ -1,14 +1,14 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use pest::iterators::Pairs;
 use super::Rule;
+use pest::iterators::Pairs;
 
 pub struct Config {
     /// The poll/question counter `(is_set: bool, start_from: usize)`
     pub counter: (bool, usize),
     /// The message markdown errors.
-    pub md_err: bool
+    pub md_err: bool,
 }
 
 impl Config {
@@ -18,39 +18,37 @@ impl Config {
     pub fn new() -> Self {
         return Self {
             counter: (false, 0),
-            md_err: false
+            md_err: false,
         };
     }
 
     pub fn parse(&mut self, config_ast: Pairs<'_, Rule>) {
         config_ast
             .into_iter()
-            .filter( |pair| pair.as_rule() == Rule::CONFIG_OPSION)
-            .flat_map( |pair| pair.into_inner() )
-            .for_each( |inner_pair| {
-                match inner_pair.as_rule() {
-                    Rule::CONFIG_COUNTER => {
-                        inner_pair
-                            .into_inner()
-                            .filter( |counter_pair| counter_pair.as_rule() == Rule::CONFIG_COUNTER_VALUE)
-                            .take(1)
-                            .for_each( |counter_pair| {
-                                if let Ok(counter_value) = counter_pair.as_str().parse::<usize>() {
-                                    self.counter = (true, counter_value);
-                                }
-                            });
-                    },
-                    Rule::CONFIG_MD_ERR  => {
-                        inner_pair
-                            .into_inner()
-                            .filter( |md_err_pair| md_err_pair.as_rule() == Rule::CONFIG_MD_ERR_VALUE)
-                            .take(1)
-                            .for_each( |md_err_pair| {
-                                self.md_err = md_err_pair.as_str().to_lowercase() == "true";
-                            });
-                    },
-                    _ => {}
+            .filter(|pair| pair.as_rule() == Rule::CONFIG_OPSION)
+            .flat_map(|pair| pair.into_inner())
+            .for_each(|inner_pair| match inner_pair.as_rule() {
+                Rule::CONFIG_COUNTER => {
+                    inner_pair
+                        .into_inner()
+                        .filter(|counter_pair| counter_pair.as_rule() == Rule::CONFIG_COUNTER_VALUE)
+                        .take(1)
+                        .for_each(|counter_pair| {
+                            if let Ok(counter_value) = counter_pair.as_str().parse::<usize>() {
+                                self.counter = (true, counter_value);
+                            }
+                        });
                 }
+                Rule::CONFIG_MD_ERR => {
+                    inner_pair
+                        .into_inner()
+                        .filter(|md_err_pair| md_err_pair.as_rule() == Rule::CONFIG_MD_ERR_VALUE)
+                        .take(1)
+                        .for_each(|md_err_pair| {
+                            self.md_err = md_err_pair.as_str().to_lowercase() == "true";
+                        });
+                }
+                _ => {}
             });
     }
 }

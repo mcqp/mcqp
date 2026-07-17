@@ -1,12 +1,12 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use std::io::{Read, Write};
 use clap::ArgMatches;
 use dirs::data_dir;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::io::{Read, Write};
 
 use crate::{display::Display, log::Log, utils};
 
@@ -19,7 +19,7 @@ pub struct Config {
 /// The bot API response.
 #[derive(Deserialize)]
 struct BotResDto<T> {
-    result: T
+    result: T,
 }
 
 /// The bot `getMe` API result.
@@ -44,7 +44,7 @@ pub struct ChatResult {
     /// - `chat`: The chat that send the message
     /// - `date`: Sended at
     /// - `text`: The message body
-    message: Message
+    message: Message,
 }
 
 /// The message extractor.
@@ -57,7 +57,7 @@ pub struct Message {
     /// - `type`: The chat type
     pub chat: Chat,
     /// The message body
-    pub text: String
+    pub text: String,
 }
 
 /// The chat extractor.
@@ -66,30 +66,30 @@ pub struct Chat {
     pub id: i64,
     pub first_name: String,
     pub username: String,
-    #[serde(rename="type")]
-    pub _type: String
+    #[serde(rename = "type")]
+    pub _type: String,
 }
 
 impl Config {
     pub fn new() -> Config {
         return Config {
             bot_token: String::new(),
-            chat_id: String::new()
+            chat_id: String::new(),
         };
     }
 
-    /// Set bot token value by the user input. 
-    /// Check the bot token by sending a get to 
+    /// Set bot token value by the user input.
+    /// Check the bot token by sending a get to
     /// `https://api.telegram.org/bot<BOT-TOKEN>/getMe`.
     pub async fn set_bot_token(&mut self) {
         let logger = Log::new("set-bot-token");
         let token = utils::input("Enter the token: ");
         let client = Client::new();
-        if let Ok(res) = client.get(
-                format!("https://api.telegram.org/bot{}/getMe", token)
-            )
+        if let Ok(res) = client
+            .get(format!("https://api.telegram.org/bot{}/getMe", token))
             .send()
-            .await {
+            .await
+        {
             if res.status().is_success() {
                 let res_json = res.json::<BotResDto<BotResult>>().await;
                 if let Ok(info) = res_json {
@@ -101,7 +101,7 @@ impl Config {
                     logger.error("Can NOT parse the response!");
                 }
             } else {
-                // The response is not 200, if it is 400 or 404 or 403 
+                // The response is not 200, if it is 400 or 404 or 403
                 // this means the token is invalid.
                 logger.error("Invalid bot token!");
             }
@@ -117,11 +117,14 @@ impl Config {
     pub async fn set_chat_id(&mut self) {
         let logger = Log::new("set-chat-id");
         let client = Client::new();
-        if let Ok(res) = client.get(
-            format!("https://api.telegram.org/bot{}/getUpdates", self.bot_token)
-        )
-        .send()
-        .await {
+        if let Ok(res) = client
+            .get(format!(
+                "https://api.telegram.org/bot{}/getUpdates",
+                self.bot_token
+            ))
+            .send()
+            .await
+        {
             if res.status().is_success() {
                 let res_json = res.json::<BotResDto<Vec<ChatResult>>>().await;
                 if let Ok(info) = res_json {
@@ -133,7 +136,12 @@ impl Config {
                     }
                     // Get the chat-id based on the bot chats
                     let chat_id = utils::input("Based on the chats enter your chat-id: ");
-                    if info.result.iter().find(|x| x.message.chat.id.to_string() == chat_id).is_none() {
+                    if info
+                        .result
+                        .iter()
+                        .find(|x| x.message.chat.id.to_string() == chat_id)
+                        .is_none()
+                    {
                         logger.error("Chat id is not in the bot chats!");
                     }
                     self.chat_id = chat_id;
@@ -142,7 +150,7 @@ impl Config {
                     logger.error("Can NOT parse the response!");
                 }
             } else {
-                // The response is not 200, if it is 400 or 404 or 403 
+                // The response is not 200, if it is 400 or 404 or 403
                 // this means the token is invalid.
                 logger.error("Invalid bot token!");
             }
@@ -154,7 +162,7 @@ impl Config {
 
     /// Set the bot information (description and short description).
     /// Send post to:
-    /// - `https://api.telegram.org/bot<BOT-TOKEN>/setMyDescription` 
+    /// - `https://api.telegram.org/bot<BOT-TOKEN>/setMyDescription`
     /// - `https://api.telegram.org/bot<BOT-TOKEN>/setMyShortDescription`
     pub async fn set_bot_information(&self) {
         let website_link = "https://mcqp.github.io/";
@@ -204,8 +212,9 @@ impl Config {
         file.write_all(
             serde_json::to_string(&self)
                 .unwrap_or_else(|_| logger.error("Can NOT make json object!"))
-                .as_bytes()
-        ).unwrap_or_else(|_| logger.error("Can NOT write to the config file!"));
+                .as_bytes(),
+        )
+        .unwrap_or_else(|_| logger.error("Can NOT write to the config file!"));
         logger.info("Configurations saved successfully.");
     }
 
@@ -216,23 +225,23 @@ impl Config {
             .unwrap_or_else(|| logger.error("Can NOT get the data dir!"))
             .join("mcqp/data/config.json");
         if !config_file.exists() {
-            logger.error("Configurations NOT found, Please use 'mcqp config' to set the configurations");
+            logger.error(
+                "Configurations NOT found, Please use 'mcqp config' to set the configurations",
+            );
         }
         let mut file = std::fs::File::open(config_file)
             .unwrap_or_else(|_| logger.error("Can NOT open the config file!"));
         let mut configs_buf = String::new();
-        file
-            .read_to_string(&mut configs_buf)
+        file.read_to_string(&mut configs_buf)
             .unwrap_or_else(|_| logger.error("Can NOT read the config file!"));
         let config: Config = serde_json::from_str(&configs_buf)
             .unwrap_or_else(|_| logger.error("Can NOT parse configs!"));
         self.bot_token = config.bot_token.clone();
-        self.chat_id   = config.chat_id.clone();
+        self.chat_id = config.chat_id.clone();
     }
-
 }
 
-pub async fn main( _: &ArgMatches ) {
+pub async fn main(_: &ArgMatches) {
     let mut config = Config::new();
     config.set_bot_token().await;
     let _ = utils::input("Please send any text message to the bot and then press enter...");

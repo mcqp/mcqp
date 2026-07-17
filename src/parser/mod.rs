@@ -1,23 +1,17 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-// The sections parsers.
-mod poll_parser;
-mod question_parser;
 mod config_parser;
 mod message_parser;
+mod poll_parser;
+mod question_parser;
 
-// 3-party packages
 use pest::Parser;
+use pest::error::{ErrorVariant::ParsingError, InputLocation::Pos};
 use pest_derive::Parser;
-use pest::error::{
-    InputLocation::Pos,
-    ErrorVariant::ParsingError
-};
 
-// The MCQP modules
-use crate::file::FileReader;
 use crate::display::DisplaySyntaxError;
+use crate::file::FileReader;
 use crate::log::Log;
 
 /// The .mcq sections types.
@@ -30,7 +24,7 @@ pub enum McqpType {
     /// Multiple choice poll section
     MCPoll,
     /// Message section
-    Message
+    Message,
 }
 
 /// The .mcq section tree.
@@ -42,7 +36,7 @@ pub struct Mcqp {
     /// The question information.
     pub question: Option<question_parser::Question>,
     /// The message information.
-    pub message: Option<message_parser::Message>
+    pub message: Option<message_parser::Message>,
 }
 
 #[derive(Parser)]
@@ -50,7 +44,7 @@ pub struct Mcqp {
 struct MCQPParser;
 
 /// The .mcq sections tree list.
-/// 
+///
 /// ### Example:
 /// ```
 /// McqpList {
@@ -92,19 +86,19 @@ pub struct McqpAST {
     /// The file path.
     file_path: std::path::PathBuf,
     /// The file reader.
-    file_reader: FileReader
+    file_reader: FileReader,
 }
 
 impl McqpAST {
     pub fn new(file_path: std::path::PathBuf) -> Self {
-        return McqpAST { 
-            poll_count: 0, 
-            question_count: 0, 
-            message_count: 0, 
+        return McqpAST {
+            poll_count: 0,
+            question_count: 0,
+            message_count: 0,
             mcqps: Vec::new(),
             config: config_parser::Config::new(),
             file_path: file_path.clone(),
-            file_reader: FileReader::new(file_path)
+            file_reader: FileReader::new(file_path),
         };
     }
 
@@ -112,99 +106,84 @@ impl McqpAST {
     pub fn parse(&mut self) {
         let logger = Log::new("parser");
         while let Some(line) = &self.file_reader.next_line() {
-
             // Parse the comment.
-            if MCQPParser::parse(Rule::COMMENT, line).is_ok() { continue; }
-
+            if MCQPParser::parse(Rule::COMMENT, line).is_ok() {
+                continue;
+            }
             // Parse the empty line.
-            else if MCQPParser::parse(Rule::EMPTY_LINE, line).is_ok() { continue; }
-
+            else if MCQPParser::parse(Rule::EMPTY_LINE, line).is_ok() {
+                continue;
+            }
             // Parse the Poll section.
-            else if MCQPParser::parse(Rule::POLL_START, line).is_ok() { 
-                self.parse_poll(
-                    line, 
-                    false, 
-                    self.file_reader.get_line_number()
-                ); 
+            else if MCQPParser::parse(Rule::POLL_START, line).is_ok() {
+                self.parse_poll(line, false, self.file_reader.get_line_number());
             }
-
             // Parse the Question section.
-            else if MCQPParser::parse(Rule::QUESTION_START, line).is_ok() { 
-                self.parse_question(
-                    line,
-                    self.file_reader.get_line_number()
-                ); 
+            else if MCQPParser::parse(Rule::QUESTION_START, line).is_ok() {
+                self.parse_question(line, self.file_reader.get_line_number());
             }
-
             // Parse the Multichoice Poll section.
-            else if MCQPParser::parse(Rule::MCPOLL_START, line).is_ok() { 
-                self.parse_poll(
-                    line, 
-                    true,
-                    self.file_reader.get_line_number()
-                ); 
+            else if MCQPParser::parse(Rule::MCPOLL_START, line).is_ok() {
+                self.parse_poll(line, true, self.file_reader.get_line_number());
             }
-
             // Parse the Config section.
-            else if MCQPParser::parse(Rule::CONFIG_START, line).is_ok() { 
-                self.parse_config(); 
+            else if MCQPParser::parse(Rule::CONFIG_START, line).is_ok() {
+                self.parse_config();
             }
-
             // Parse the Message block.
-            else if MCQPParser::parse(Rule::MESSAGE_SATRT, line).is_ok() { 
+            else if MCQPParser::parse(Rule::MESSAGE_SATRT, line).is_ok() {
                 self.parse_message(&line, self.file_reader.get_line_number());
             }
-
             // Parse any unknown keyword.
-            else { 
+            else {
                 DisplaySyntaxError::error(
-                    "Unknown keyword.", 
-                    "Expected a section keyword found unknown keyword", 
-                    &self.file_path, 
-                    line, 
-                    self.file_reader.get_line_number(), 
-                    0
+                    "Unknown keyword.",
+                    "Expected a section keyword found unknown keyword",
+                    &self.file_path,
+                    line,
+                    self.file_reader.get_line_number(),
+                    0,
                 );
                 DisplaySyntaxError::fix_add(
-                    "Add '//' in the front of the line to make it a comment.", 
-                    line, 
-                    "//", 
+                    "Add '//' in the front of the line to make it a comment.",
+                    line,
+                    "//",
                     self.file_reader.get_line_number(),
-                    0
+                    0,
                 );
                 self.exit();
             }
         }
-        logger.info(
-            &format!(
-                "found {}/poll and {}/question and {}/message", 
-                self.poll_count,
-                self.question_count,
-                self.message_count
-            )
-        );
+        logger.info(&format!(
+            "found {}/poll and {}/question and {}/message",
+            self.poll_count, self.question_count, self.message_count
+        ));
     }
 
     /// The Poll header and the Poll options parser.
     fn parse_poll(&mut self, header_line: &str, is_mcpoll: bool, header_line_number: usize) {
         let poll_header_result = MCQPParser::parse(
-            if is_mcpoll { Rule::MCPOLL_HEADER } else { Rule::POLL_HEADER },
-            header_line
+            if is_mcpoll {
+                Rule::MCPOLL_HEADER
+            } else {
+                Rule::POLL_HEADER
+            },
+            header_line,
         );
         if let Ok(poll_header_ast) = poll_header_result {
             let mut poll = poll_parser::Poll::new();
             poll.parse_header(poll_header_ast);
             if !poll.is_question_valid() {
                 DisplaySyntaxError::error(
-                    "The poll question length is not between 1 to 255 characher.", 
+                    "The poll question length is not between 1 to 255 characher.",
                     &format!(
-                        "Expected poll question to be between 1 to 255 characher, found {} characher.", 
+                        "Expected poll question to be between 1 to 255 characher, found {} characher.",
                         poll.question().chars().count()
-                    ), 
-                    &self.file_path, 
-                    header_line, 
-                    header_line_number, 
-                    0
+                    ),
+                    &self.file_path,
+                    header_line,
+                    header_line_number,
+                    0,
                 );
                 self.exit();
             }
@@ -214,15 +193,15 @@ impl McqpAST {
                     poll.parse_option(option_ast);
                     if !poll.is_last_option_valid() {
                         DisplaySyntaxError::error(
-                            "The option length is not between 1 to 100 characher.", 
+                            "The option length is not between 1 to 100 characher.",
                             &format!(
                                 "Expected the option length between 1 to 100 characher, found {} characher.",
                                 line.trim().chars().count()
-                            ), 
+                            ),
                             &self.file_path,
-                            line, 
-                            self.file_reader.get_line_number(), 
-                            line.chars().take_while( |&c| c == ' ' ).count()
+                            line,
+                            self.file_reader.get_line_number(),
+                            line.chars().take_while(|&c| c == ' ').count(),
                         );
                         self.exit();
                     }
@@ -233,24 +212,27 @@ impl McqpAST {
             self.file_reader.back_to_previous();
             if !poll.is_options_valid() {
                 DisplaySyntaxError::error(
-                    "The number of the poll options is not between 2 to 10 option.", 
-                    &format!("Expected 2 to 10 options, found {} option.", poll.choices_len()), 
-                    &self.file_path, 
-                    header_line, 
-                    header_line_number, 
-                    0
+                    "The number of the poll options is not between 2 to 10 option.",
+                    &format!(
+                        "Expected 2 to 10 options, found {} option.",
+                        poll.choices_len()
+                    ),
+                    &self.file_path,
+                    header_line,
+                    header_line_number,
+                    0,
                 );
                 self.exit();
             }
             if self.config.counter.0 {
                 if !poll.add_count(self.config.counter.1) {
                     DisplaySyntaxError::error(
-                        "You can not add counter.", 
-                        "The length of the question + counter exit 255.", 
-                        &self.file_path, 
-                        header_line, 
-                        header_line_number, 
-                        0
+                        "You can not add counter.",
+                        "The length of the question + counter exit 255.",
+                        &self.file_path,
+                        header_line,
+                        header_line_number,
+                        0,
                     );
                     self.exit();
                 }
@@ -258,68 +240,68 @@ impl McqpAST {
             }
             self.poll_count += 1;
             self.mcqps.push(Mcqp {
-                _type: if is_mcpoll { McqpType::MCPoll } else { McqpType::Poll },
+                _type: if is_mcpoll {
+                    McqpType::MCPoll
+                } else {
+                    McqpType::Poll
+                },
                 poll: Some(poll),
                 question: None,
-                message: None
+                message: None,
             });
-        } 
-        else if let Err(error) = poll_header_result {
+        } else if let Err(error) = poll_header_result {
             let error_position = match error.location {
                 Pos(postion) => postion,
-                _ => 0
+                _ => 0,
             };
             DisplaySyntaxError::error(
-                "The poll question does not exist.", 
-                "There is no question for the poll.", 
-                &self.file_path, 
-                header_line, 
-                header_line_number, 
-                error_position
+                "The poll question does not exist.",
+                "There is no question for the poll.",
+                &self.file_path,
+                header_line,
+                header_line_number,
+                error_position,
             );
             DisplaySyntaxError::fix_add(
-                "Add any question to the poll header.", 
-                header_line, 
-                "Poll question example", 
-                header_line_number, 
-                error_position
+                "Add any question to the poll header.",
+                header_line,
+                "Poll question example",
+                header_line_number,
+                error_position,
             );
             self.exit();
         }
     }
 
-    /// The Question header and the Question options parser. 
+    /// The Question header and the Question options parser.
     fn parse_question(&mut self, header_line: &str, header_line_number: usize) {
-        let question_header_result = MCQPParser::parse(
-            Rule::QUESTION_HEADER, 
-            header_line
-        );
+        let question_header_result = MCQPParser::parse(Rule::QUESTION_HEADER, header_line);
         if let Ok(question_header_ast) = question_header_result {
             let mut question = question_parser::Question::new();
             question.parse_header(question_header_ast);
             if !question.is_question_valid() {
                 DisplaySyntaxError::error(
-                    "The question length is not between 1 to 255 characher.", 
+                    "The question length is not between 1 to 255 characher.",
                     &format!(
-                        "Expected question to be between 1 to 255 characher, found {} characher.", 
+                        "Expected question to be between 1 to 255 characher, found {} characher.",
                         question.question_len()
-                    ), 
-                    &self.file_path, 
-                    header_line, 
-                    header_line_number, 
-                    0
+                    ),
+                    &self.file_path,
+                    header_line,
+                    header_line_number,
+                    0,
                 );
                 self.exit();
             }
             if question.is_note() {
                 if !question.is_note_valid() {
                     DisplaySyntaxError::error(
-                        "The length of the note is not between 1 to 200 characher", 
+                        "The length of the note is not between 1 to 200 characher",
                         "Expected the note length between 1 to 200 characher.",
-                        &self.file_path, 
-                        header_line, 
-                        header_line_number, 
-                        0
+                        &self.file_path,
+                        header_line,
+                        header_line_number,
+                        0,
                     );
                     self.exit();
                 }
@@ -330,15 +312,15 @@ impl McqpAST {
                     question.parse_option(option_ast);
                     if !question.is_last_option_valid() {
                         DisplaySyntaxError::error(
-                            "The option length is not between 1 to 100 characher.", 
+                            "The option length is not between 1 to 100 characher.",
                             &format!(
                                 "Expected the option length between 1 to 100 characher, found {} characher.",
                                 line.trim().chars().count()
-                            ), 
+                            ),
                             &self.file_path,
-                            line, 
-                            self.file_reader.get_line_number(), 
-                            line.chars().take_while( |&c| c == ' ' ).count()
+                            line,
+                            self.file_reader.get_line_number(),
+                            line.chars().take_while(|&c| c == ' ').count(),
                         );
                         self.exit();
                     }
@@ -349,69 +331,68 @@ impl McqpAST {
             self.file_reader.back_to_previous();
             if !question.is_options_valid() {
                 DisplaySyntaxError::error(
-                    "The number of the question options is not between 2 to 10 option or there is no correct answer.", 
-                    "Expected 2 to 10 options and a correct answer.", 
-                    &self.file_path, 
-                    header_line, 
-                    header_line_number, 
-                    0
+                    "The number of the question options is not between 2 to 10 option or there is no correct answer.",
+                    "Expected 2 to 10 options and a correct answer.",
+                    &self.file_path,
+                    header_line,
+                    header_line_number,
+                    0,
                 );
                 self.exit();
             }
             if self.config.counter.0 {
                 if !question.add_count(self.config.counter.1) {
                     DisplaySyntaxError::error(
-                        "You can not add counter.", 
-                        "The length of the question + counter exit 255.", 
-                        &self.file_path, 
-                        header_line, 
-                        header_line_number, 
-                        0
+                        "You can not add counter.",
+                        "The length of the question + counter exit 255.",
+                        &self.file_path,
+                        header_line,
+                        header_line_number,
+                        0,
                     );
                     self.exit();
                 }
                 self.config.counter.1 += 1;
             }
             self.question_count += 1;
-            self.mcqps.push(Mcqp { 
-                _type: McqpType::Question, 
-                poll: None, 
-                question: Some(question), 
-                message: None 
+            self.mcqps.push(Mcqp {
+                _type: McqpType::Question,
+                poll: None,
+                question: Some(question),
+                message: None,
             });
-        } 
-        else if let Err(error) = question_header_result {
+        } else if let Err(error) = question_header_result {
             let error_position = match error.location {
                 Pos(postion) => postion,
-                _ => 0
+                _ => 0,
             };
             if let ParsingError { negatives, .. } = error.variant {
                 if negatives.len() > 0 {
                     DisplaySyntaxError::error(
-                        "Unexpected start of note.", 
-                        "The question must be in the first not the note block.", 
-                        &self.file_path, 
-                        header_line, 
-                        header_line_number, 
-                        error_position
+                        "Unexpected start of note.",
+                        "The question must be in the first not the note block.",
+                        &self.file_path,
+                        header_line,
+                        header_line_number,
+                        error_position,
                     );
                     self.exit();
                 }
             }
             DisplaySyntaxError::error(
-                "The question does not exist.", 
-                "There is no question in the header.", 
-                &self.file_path, 
-                header_line, 
-                header_line_number, 
-                error_position
+                "The question does not exist.",
+                "There is no question in the header.",
+                &self.file_path,
+                header_line,
+                header_line_number,
+                error_position,
             );
             DisplaySyntaxError::fix_add(
-                "Add any question to the header header.", 
-                header_line, 
+                "Add any question to the header header.",
+                header_line,
                 "Question example",
-                header_line_number, 
-                error_position
+                header_line_number,
+                error_position,
             );
             self.exit();
         }
@@ -427,9 +408,9 @@ impl McqpAST {
                 } else if let Err(error) = config_ast_result {
                     let error_position = match error.location {
                         Pos(postion) => postion,
-                        _ => 0
+                        _ => 0,
                     };
-                    if let ParsingError{ positives, ..} = error.variant {
+                    if let ParsingError { positives, .. } = error.variant {
                         positives
                             .iter()
                             .for_each(|&rule| {
@@ -487,7 +468,7 @@ impl McqpAST {
                     break;
                 }
                 continue;
-            } 
+            }
             break;
         }
         self.file_reader.back_to_previous();
@@ -510,7 +491,9 @@ impl McqpAST {
                 let mut position: usize = 0;
                 for (ci, c) in msg.chars().enumerate() {
                     position += 1;
-                    if ci == err.offset() { break; }
+                    if ci == err.offset() {
+                        break;
+                    }
                     if c == '\n' {
                         position = 0;
                         li += 1;
@@ -520,19 +503,19 @@ impl McqpAST {
                 let line_number = message_line_number + li + 1;
                 let err_line = msg.split('\n').collect::<Vec<&str>>()[li];
                 DisplaySyntaxError::error(
-                    "Markdown unclosed.", 
-                    "This must be escaped or closed.", 
-                    &self.file_path, 
+                    "Markdown unclosed.",
+                    "This must be escaped or closed.",
+                    &self.file_path,
                     err_line,
-                    line_number, 
-                    position-1
+                    line_number,
+                    position - 1,
                 );
                 DisplaySyntaxError::fix_add(
-                    "Escape the char to use it.", 
-                    err_line, 
-                    "\\", 
-                    line_number, 
-                    position-1
+                    "Escape the char to use it.",
+                    err_line,
+                    "\\",
+                    line_number,
+                    position - 1,
                 );
                 self.exit();
             }
@@ -541,20 +524,20 @@ impl McqpAST {
         }
         if !message.is_valid() {
             DisplaySyntaxError::error(
-                "Found message block but there is no message!", 
-                "There is no message", 
-                &self.file_path, 
-                message_line, 
-                message_line_number, 
-                0
+                "Found message block but there is no message!",
+                "There is no message",
+                &self.file_path,
+                message_line,
+                message_line_number,
+                0,
             );
             self.exit();
         }
-        self.mcqps.push(Mcqp { 
-            _type: McqpType::Message, 
-            poll: None, 
-            question: None, 
-            message: Some(message)
+        self.mcqps.push(Mcqp {
+            _type: McqpType::Message,
+            poll: None,
+            question: None,
+            message: Some(message),
         });
         self.message_count += 1;
     }

@@ -32,9 +32,8 @@ impl Display {
 
 pub struct DisplaySyntaxError;
 impl DisplaySyntaxError {
-    
     /// Display the syntax error.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// DisplaySyntaxError::error(
@@ -47,20 +46,16 @@ impl DisplaySyntaxError {
     /// );
     /// ```
     pub fn error(
-        msg: &str, 
-        position_msg: &str, 
-        file_path: &std::path::PathBuf, 
-        line: &str, 
-        line_number: usize, 
-        position: usize
+        msg: &str,
+        position_msg: &str,
+        file_path: &std::path::PathBuf,
+        line: &str,
+        line_number: usize,
+        position: usize,
     ) {
         let line_number_width = line_number.to_string().len();
         let position_error_msg = " ".repeat(position) + "^ " + position_msg;
-        println!(
-            "{}: {}",
-            "ERROR".red(),
-            msg
-        );
+        println!("{}: {}", "ERROR".red(), msg);
         println!(
             " {:line_number_width$} {} {}:{}:{}",
             "",
@@ -69,19 +64,15 @@ impl DisplaySyntaxError {
             line_number,
             position
         );
-        println!(
-            " {:line_number_width$} {}", 
-            "",
-            "|".cyan()
-        );
+        println!(" {:line_number_width$} {}", "", "|".cyan());
         println!(
             " {:>line_number_width$} {} {}",
-            line_number.to_string().cyan(), 
+            line_number.to_string().cyan(),
             "|".cyan(),
             line
         );
         println!(
-            " {:line_number_width$} {} {}", 
+            " {:line_number_width$} {} {}",
             "",
             "|".cyan(),
             position_error_msg.red()
@@ -90,7 +81,7 @@ impl DisplaySyntaxError {
     }
 
     /// Display the error fix using the add-on.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// DisplaySyntaxError::fix_add(
@@ -101,35 +92,25 @@ impl DisplaySyntaxError {
     ///     0
     /// ); // it will make the line like this "//the line text."
     /// ```
-    pub fn fix_add(
-        msg: &str,
-        line: &str,
-        add: &str,
-        line_number: usize,
-        position: usize
-    ) {
+    pub fn fix_add(msg: &str, line: &str, add: &str, line_number: usize, position: usize) {
         let line_number_width = line_number.to_string().len();
-        let plus_with_position = format!("{}{}", " ".repeat(position),"+".repeat(add.chars().count()));
+        let plus_with_position = format!(
+            "{}{}",
+            " ".repeat(position),
+            "+".repeat(add.chars().count())
+        );
         let mut new_line = line.to_string();
         new_line.insert_str(position, add);
-        println!(
-            "{}: {}",
-            "FIX".green(),
-            msg
-        );
-        println!(
-            " {:line_number_width$} {}", 
-            "",
-            "|".cyan()
-        );
+        println!("{}: {}", "FIX".green(), msg);
+        println!(" {:line_number_width$} {}", "", "|".cyan());
         println!(
             " {:>line_number_width$} {} {}",
-            line_number.to_string().cyan(), 
+            line_number.to_string().cyan(),
             "|".cyan(),
             new_line
         );
         println!(
-            " {:line_number_width$} {} {}", 
+            " {:line_number_width$} {} {}",
             "",
             "|".cyan(),
             plus_with_position.green()

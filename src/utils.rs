@@ -4,7 +4,7 @@
 use std::io::Write;
 
 /// Read a string from standard input.
-/// 
+///
 /// ### Example
 /// ```
 /// let input = utilities::input("Enter your name: ");

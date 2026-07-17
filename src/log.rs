@@ -5,15 +5,14 @@ use colored::Colorize;
 
 pub struct Log {
     /// The function name
-    name: String
+    name: String,
 }
 
 impl Log {
-
     /// Create new `Log` with the function name.
     pub fn new(name: &str) -> Log {
         return Log {
-            name: name.to_string()
+            name: name.to_string(),
         };
     }
 

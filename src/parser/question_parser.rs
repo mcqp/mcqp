@@ -1,8 +1,8 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use pest::iterators::Pairs;
 use super::Rule;
+use pest::iterators::Pairs;
 
 pub struct Question {
     /// The question string
@@ -15,14 +15,13 @@ pub struct Question {
     note: Option<String>,
 }
 
-
 impl Question {
     pub fn new() -> Self {
         return Self {
             question: String::new(),
             choices: Vec::new(),
             answer: -1,
-            note: None
+            note: None,
         };
     }
 
@@ -55,20 +54,20 @@ impl Question {
     pub fn parse_header(&mut self, question_header_ast: Pairs<'_, Rule>) {
         question_header_ast
             .into_iter()
-            .filter( |pair| pair.as_rule() == Rule::QUESTION_HEADER)
-            .flat_map( |pair| pair.into_inner() )
-            .for_each( |inner_pair| {
+            .filter(|pair| pair.as_rule() == Rule::QUESTION_HEADER)
+            .flat_map(|pair| pair.into_inner())
+            .for_each(|inner_pair| {
                 // Parse the questoin.
                 if inner_pair.as_rule() == Rule::QUESTION {
                     self.question = inner_pair.as_str().to_string();
-                } 
+                }
                 // Parse the Note block.
                 else if inner_pair.as_rule() == Rule::QUESTION_NOTE_BLOCK {
                     inner_pair
                         .into_inner()
                         .filter(|pair| pair.as_rule() == Rule::QUESTION_NOTE)
                         .take(1)
-                        .for_each( |note_inner_pair| {
+                        .for_each(|note_inner_pair| {
                             self.note = Some(note_inner_pair.as_str().to_string());
                         });
                 }
@@ -79,11 +78,11 @@ impl Question {
     pub fn parse_option(&mut self, option_ast: Pairs<'_, Rule>) {
         option_ast
             .into_iter()
-            .filter( |pair| pair.as_rule() == Rule::OPTION )
-            .flat_map( |pair| pair.into_inner() )
-            .filter( |inner_pair| inner_pair.as_rule() == Rule::OPTION_TEXT )
+            .filter(|pair| pair.as_rule() == Rule::OPTION)
+            .flat_map(|pair| pair.into_inner())
+            .filter(|inner_pair| inner_pair.as_rule() == Rule::OPTION_TEXT)
             .take(1)
-            .for_each( |inner_pair| {
+            .for_each(|inner_pair| {
                 let mut option = inner_pair.as_str().to_string();
                 if option.ends_with("*") {
                     option = option
@@ -92,7 +91,7 @@ impl Question {
                         .trim()
                         .to_string();
                     // The answer index will be the length of the
-                    // current options list, after we add the answer 
+                    // current options list, after we add the answer
                     // we will add this opction.
                     self.answer = self.choices.len() as i8;
                 }
@@ -113,7 +112,7 @@ impl Question {
 
     /// Check the number of opctions and if there an answer.
     pub fn is_options_valid(&self) -> bool {
-        if self.choices.len() < 2 || self.choices.len() > 10  || self.answer == -1 {
+        if self.choices.len() < 2 || self.choices.len() > 10 || self.answer == -1 {
             return false;
         }
         return true;
@@ -147,7 +146,7 @@ impl Question {
         return true;
     }
 
-    /// Add a counter to the question. It will return `false` if 
+    /// Add a counter to the question. It will return `false` if
     /// the question length so big.
     pub fn add_count(&mut self, counter: usize) -> bool {
         let new_question = format!("{}.{}", counter, self.question);

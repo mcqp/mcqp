@@ -1,8 +1,8 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use telemark::parser::mdv1;
 use telemark::parser::enums::MarkdownErrorType;
+use telemark::parser::mdv1;
 use telemark::parser::types::MarkdownError;
 
 pub struct Message {
@@ -19,7 +19,7 @@ impl Message {
         self.m = msg.clone().trim().to_string();
         if let Err(err) = mdv1::parser(&msg) {
             match err.err() {
-                MarkdownErrorType::BacktickOpen  => self.m.push('`'),
+                MarkdownErrorType::BacktickOpen => self.m.push('`'),
                 MarkdownErrorType::BackticksOpen => self.m += "```",
                 MarkdownErrorType::ParenthesesOpen => self.m.push(')'),
                 MarkdownErrorType::SquareBracketsOpen => self.m.push(']'),

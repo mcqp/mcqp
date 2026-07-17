@@ -1,13 +1,10 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use std::{ 
-    path::PathBuf, 
+use std::{
     fs::File,
-    io::{
-        BufReader,
-        BufRead
-    }
+    io::{BufRead, BufReader},
+    path::PathBuf,
 };
 
 use crate::log::Log;
@@ -25,11 +22,11 @@ pub enum FileState {
     NotFound,
 }
 
-/// Check file state, return `FileState` enum: 
+/// Check file state, return `FileState` enum:
 /// - McqpFile
 /// - NotMcqpFile
 /// - NotFound
-/// 
+///
 /// ### Example:
 /// ```
 /// let path = "./dir/to/myfile.mcq".to_string;
@@ -47,7 +44,9 @@ pub fn state(file: String) -> FileState {
             .extension()
             .expect("Can NOT get the file extension!")
             .to_str()
-            .unwrap() == MCQP_FILE_EXTENSION {
+            .unwrap()
+            == MCQP_FILE_EXTENSION
+        {
             return FileState::McqpFile;
         }
         return FileState::NotMcqpFile;
@@ -55,37 +54,34 @@ pub fn state(file: String) -> FileState {
     return FileState::NotFound;
 }
 
-
-
 pub struct FileReader {
     /// The file lines.
     lines: Vec<String>,
     /// The number of the current line.
-    current_position: usize
+    current_position: usize,
 }
 
 impl FileReader {
-
-    /// Open the file and read all lines. if file can't be open or read, 
+    /// Open the file and read all lines. if file can't be open or read,
     /// this will print an error and exit the program.
     pub fn new(path: PathBuf) -> Self {
         let logger = Log::new("FileReader");
         if let Ok(file) = File::open(path) {
             let reader = BufReader::new(file);
-            if let Ok(lines) = reader.lines().collect::<Result<Vec<String>,_>>() {
+            if let Ok(lines) = reader.lines().collect::<Result<Vec<String>, _>>() {
                 return FileReader {
                     lines,
-                    current_position: 0
-                }
-            } 
+                    current_position: 0,
+                };
+            }
             logger.error("Can't read the file!");
-        } else { 
+        } else {
             logger.error("Can't open the file!");
         }
     }
 
     /// Read the next line in the file.
-    /// 
+    ///
     /// ### Example:
     /// ```
     /// let mut file_reader = FileReader::new(PathBuf::new().join(file_path));
@@ -95,7 +91,7 @@ impl FileReader {
     /// ```
     pub fn next_line(&mut self) -> Option<String> {
         if self.current_position < self.lines.len() {
-            let line = self.lines.get(self.current_position).map( |s| s.clone() );
+            let line = self.lines.get(self.current_position).map(|s| s.clone());
             self.current_position += 1;
             return line;
         }

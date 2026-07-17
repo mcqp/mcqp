@@ -1,22 +1,22 @@
 // This file is part of mcqp project, licensed under the GPL v3.
 // See the LICENSE file for full license details.
 
-use pest::iterators::Pairs;
 use super::Rule;
+use pest::iterators::Pairs;
 
 pub struct Poll {
     /// The poll question
     question: String,
     /// The poll choices
-    choices: Vec<String>
+    choices: Vec<String>,
 }
 
 impl Poll {
     pub fn new() -> Self {
         return Self {
             question: String::new(),
-            choices: Vec::new()
-        }
+            choices: Vec::new(),
+        };
     }
 
     /// Return a cloned question.
@@ -36,19 +36,18 @@ impl Poll {
 
     /// Parse the poll header.
     pub fn parse_header(&mut self, poll_header_ast: Pairs<'_, Rule>) {
-        poll_header_ast 
+        poll_header_ast
             .into_iter()
-            .filter( |pair| 
-                pair.as_rule() == Rule::POLL_HEADER ||
-                pair.as_rule() == Rule::MCPOLL_HEADER
-            )
-            .flat_map( |pair| pair.into_inner() )
-            .filter( |inner_pair| 
-                inner_pair.as_rule() == Rule::POLL_QUESTION || 
-                inner_pair.as_rule() == Rule::MCPOLL_QUESTION
-            )
+            .filter(|pair| {
+                pair.as_rule() == Rule::POLL_HEADER || pair.as_rule() == Rule::MCPOLL_HEADER
+            })
+            .flat_map(|pair| pair.into_inner())
+            .filter(|inner_pair| {
+                inner_pair.as_rule() == Rule::POLL_QUESTION
+                    || inner_pair.as_rule() == Rule::MCPOLL_QUESTION
+            })
             .take(1)
-            .for_each( |inner_pair| {
+            .for_each(|inner_pair| {
                 self.question = inner_pair.as_span().as_str().to_string();
             });
     }
@@ -57,11 +56,11 @@ impl Poll {
     pub fn parse_option(&mut self, option_ast: Pairs<'_, Rule>) {
         option_ast
             .into_iter()
-            .filter( |pair| pair.as_rule() == Rule::OPTION )
-            .flat_map( |pair| pair.into_inner() )
-            .filter( |inner_pair| inner_pair.as_rule() == Rule::OPTION_TEXT )
+            .filter(|pair| pair.as_rule() == Rule::OPTION)
+            .flat_map(|pair| pair.into_inner())
+            .filter(|inner_pair| inner_pair.as_rule() == Rule::OPTION_TEXT)
             .take(1)
-            .for_each( |inner_pair| {
+            .for_each(|inner_pair| {
                 self.choices.push(inner_pair.as_span().as_str().to_string());
             });
     }
@@ -94,7 +93,7 @@ impl Poll {
         return true;
     }
 
-    /// Add a counter to the question. It will return `false` if 
+    /// Add a counter to the question. It will return `false` if
     /// the question length so big.
     pub fn add_count(&mut self, counter: usize) -> bool {
         let new_question = format!("{}.{}", counter, self.question);

@@ -11,6 +11,6 @@ pub async fn main(commands: ArgMatches) {
         Some(("send", command)) => crate::send::main(command).await,
         Some(("config", command)) => crate::config::main(command).await,
         Some(("check", command)) => crate::check::main(command),
-        _ => logger.error("Please use `--help` from the help message!")
+        _ => logger.error("Please use `--help` to show the help message"),
     }
 }

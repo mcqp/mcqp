@@ -5,11 +5,11 @@ use clap::ArgMatches;
 use reqwest::Client;
 use serde::Serialize;
 
-use crate::file;
-use crate::parser;
-use crate::log::Log;
 use crate::config;
-use crate::parser::{McqpAST, Mcqp};
+use crate::file;
+use crate::log::Log;
+use crate::parser;
+use crate::parser::{Mcqp, McqpAST};
 
 /// The send message DTO.
 ///
@@ -18,7 +18,7 @@ use crate::parser::{McqpAST, Mcqp};
 struct MessageDto<'a> {
     text: &'a str,
     chat_id: &'a str,
-    parse_mode: &'a str
+    parse_mode: &'a str,
 }
 
 /// The send poll DTO.
@@ -34,7 +34,7 @@ struct PollDto<'a> {
     _type: &'a str,
     allows_multiple_answers: bool,
     correct_option_id: usize,
-    explanation: &'a str
+    explanation: &'a str,
 }
 
 /// The main function that parse and send the `mcq` file to telegram.
@@ -52,12 +52,12 @@ pub async fn main(command: &ArgMatches) {
     } else if file_state == file::FileState::NotMcqpFile {
         logger.error("File type is NOT .mcq!");
     }
-    let mut abstraction_tree = parser::McqpAST::new(
-        std::path::PathBuf::new().join(file)
-    );
+    let mut abstraction_tree = parser::McqpAST::new(std::path::PathBuf::new().join(file));
     abstraction_tree.parse();
     send_config.get_config();
-    let _ = SendToTelegram::new(abstraction_tree, send_config).send().await;
+    let _ = SendToTelegram::new(abstraction_tree, send_config)
+        .send()
+        .await;
 }
 
 /// Send the mcqp abstraction syntax tree to telegram.
@@ -67,7 +67,7 @@ struct SendToTelegram {
     chat_id: String,
     mcq_ast: McqpAST,
     logger: Log,
-    client: Client
+    client: Client,
 }
 impl SendToTelegram {
     pub fn new(mcq_ast: McqpAST, conf: config::Config) -> Self {
@@ -77,7 +77,7 @@ impl SendToTelegram {
             chat_id: conf.chat_id.clone(),
             mcq_ast,
             logger: Log::new("sender"),
-            client: Client::new()
+            client: Client::new(),
         };
     }
 
@@ -85,9 +85,9 @@ impl SendToTelegram {
     pub async fn send(&self) {
         for section in &self.mcq_ast.mcqps {
             match section._type {
-                parser::McqpType::Message  => self.send_message(section).await,
-                parser::McqpType::Poll     => self.send_poll(section, false).await,
-                parser::McqpType::MCPoll   => self.send_poll(section, true).await,
+                parser::McqpType::Message => self.send_message(section).await,
+                parser::McqpType::Poll => self.send_poll(section, false).await,
+                parser::McqpType::MCPoll => self.send_poll(section, true).await,
                 parser::McqpType::Question => self.send_question(section).await,
             }
         }
@@ -96,11 +96,13 @@ impl SendToTelegram {
     /// Send the message section.
     async fn send_message(&self, section: &Mcqp) {
         if let Some(message) = &section.message {
-            let res_ruslt = self.client.post(&self.message_api_url)
+            let res_ruslt = self
+                .client
+                .post(&self.message_api_url)
                 .json(&MessageDto {
                     chat_id: &self.chat_id,
                     text: &message.m,
-                    parse_mode: "Markdown"
+                    parse_mode: "Markdown",
                 })
                 .send()
                 .await;
@@ -111,7 +113,8 @@ impl SendToTelegram {
                 self.logger.info("message sended successfully");
             } else {
                 // Network error
-                self.logger.error("Network error, can NOT make a post request!");
+                self.logger
+                    .error("Network error, can NOT make a post request!");
             }
         }
     }
@@ -119,7 +122,9 @@ impl SendToTelegram {
     /// Send the poll and mcpoll section.
     async fn send_poll(&self, section: &Mcqp, is_mcpoll: bool) {
         if let Some(poll) = &section.poll {
-            let res_ruslt = self.client.post(&self.poll_api_url)
+            let res_ruslt = self
+                .client
+                .post(&self.poll_api_url)
                 .json(&PollDto {
                     chat_id: &self.chat_id,
                     question: &poll.question(),
@@ -128,7 +133,7 @@ impl SendToTelegram {
                     _type: "regular",
                     allows_multiple_answers: is_mcpoll,
                     correct_option_id: 1,
-                    explanation: ""
+                    explanation: "",
                 })
                 .send()
                 .await;
@@ -140,7 +145,8 @@ impl SendToTelegram {
             } else {
                 // Network error
                 println!("{:#?}", res_ruslt);
-                self.logger.error("Network error, can NOT make a post request!");
+                self.logger
+                    .error("Network error, can NOT make a post request!");
             }
         }
     }
@@ -148,7 +154,9 @@ impl SendToTelegram {
     /// Send the question section.
     async fn send_question(&self, section: &Mcqp) {
         if let Some(question) = &section.question {
-            let res_ruslt = self.client.post(&self.poll_api_url)
+            let res_ruslt = self
+                .client
+                .post(&self.poll_api_url)
                 .json(&PollDto {
                     chat_id: &self.chat_id,
                     question: &question.question(),
@@ -157,7 +165,7 @@ impl SendToTelegram {
                     _type: "quiz",
                     allows_multiple_answers: false,
                     correct_option_id: question.answer() as usize,
-                    explanation: &question.note().unwrap_or("".to_string())
+                    explanation: &question.note().unwrap_or("".to_string()),
                 })
                 .send()
                 .await;
@@ -168,9 +176,9 @@ impl SendToTelegram {
                 self.logger.info("question sended successfully");
             } else {
                 // Network error
-                self.logger.error("Network error, can NOT make a post request!");
+                self.logger
+                    .error("Network error, can NOT make a post request!");
             }
         }
     }
 }
-

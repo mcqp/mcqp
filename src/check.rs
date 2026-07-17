@@ -3,8 +3,8 @@
 
 use clap::ArgMatches;
 
-use crate::log::Log;
 use crate::file;
+use crate::log::Log;
 use crate::parser;
 
 pub fn main(command: &ArgMatches) {
@@ -16,9 +16,7 @@ pub fn main(command: &ArgMatches) {
     } else if file_state == file::FileState::NotMcqpFile {
         logger.error("File type is NOT .mcq!");
     }
-    let mut abstraction_tree = parser::McqpAST::new(
-        std::path::PathBuf::new().join(file)
-    );
+    let mut abstraction_tree = parser::McqpAST::new(std::path::PathBuf::new().join(file));
     abstraction_tree.parse();
     logger.info("Everything looks good.");
 }
