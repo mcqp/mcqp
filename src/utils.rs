@@ -8,8 +8,8 @@ use std::io::Write;
 /// ### Example
 /// ```
 /// let input = utilities::input("Enter your name: ");
-/// if input == "Mohaned" {
-///     println!("Hello Mohaned");
+/// if input == "Muhannad" {
+///     println!("Hello Muhannad");
 /// } else {
 ///     println!("hi {}", input);
 /// }

@@ -1,6 +1,6 @@
 // mcqp - A CLI tool for sending messages/polls to telegram.
 //
-// Copyright (C) 2025 Mohaned Sherhan
+// Copyright (C) 2025-2026 Muhannad Sharhan
 //
 // mcqp is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ async fn main() {
     let arg_matches = Command::new("mcqp")
         .about("A CLI tool for sending messages/polls to telegram.")
         .version("0.2.0")
-        .author("Mohaned Sherhan")
+        .author("Muhannad Sharhan")
         .subcommands(command::main())
         .get_matches();
     matches::main(arg_matches).await;

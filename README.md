@@ -70,4 +70,4 @@ $ mcqp --version
 ```
 
 ---
-> By [Mohaned Sherhan (Mr.x)](https://github.com/Mohaned2023)
+> By [Muhannad Sharhan (Mr.x)](https://github.com/xbf8)
